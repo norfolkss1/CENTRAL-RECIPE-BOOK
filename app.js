@@ -16,7 +16,9 @@ const state = {
   query: "",
   activeCat: "all",
   showFavoritesOnly: false,
+  viewMode: "dishes", // 'dishes' | 'components'
   selectedRecipeId: null,
+  selectedComponentKey: null,
   favorites: JSON.parse(localStorage.getItem("me-recipe-favs") || "[]"),
   adminOpen: false,
   adminTab: "requests",
@@ -60,6 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("gate-unlock-btn").addEventListener("click", handleUnlock);
   document.getElementById("gate-pin").addEventListener("keydown", (e) => { if (e.key === "Enter") handleUnlock(); });
   document.getElementById("search-input").addEventListener("input", (e) => { state.query = e.target.value; renderBody(); });
+  document.getElementById("view-dishes-btn").addEventListener("click", () => setViewMode("dishes"));
+  document.getElementById("view-components-btn").addEventListener("click", () => setViewMode("components"));
   document.getElementById("lock-btn").addEventListener("click", lockApp);
   document.getElementById("admin-open-btn").addEventListener("click", () => openAdmin("requests"));
   document.getElementById("my-requests-btn").addEventListener("click", () => openAdmin("mine"));
@@ -191,6 +195,17 @@ function listenRequests() {
   );
 }
 
+/* ============================== View mode ============================== */
+function setViewMode(mode) {
+  state.viewMode = mode;
+  document.getElementById("view-dishes-btn").classList.toggle("active", mode === "dishes");
+  document.getElementById("view-components-btn").classList.toggle("active", mode === "components");
+  document.getElementById("search-input").placeholder = mode === "dishes"
+    ? "Search dishes, ingredients, method…"
+    : "Search sauces, dressings, sub-recipes…";
+  renderBody();
+}
+
 /* ============================== Category pills ============================== */
 function renderCategoryPills() {
   const wrap = document.getElementById("cat-scroll");
@@ -232,6 +247,11 @@ function recipeStatus(r) {
 }
 
 function renderBody() {
+  if (state.viewMode === "components") renderComponentsBody();
+  else renderDishesBody();
+}
+
+function renderDishesBody() {
   const body = document.getElementById("app-body-content");
   const list = visibleRecipes();
   const q = state.query.trim();
@@ -278,6 +298,109 @@ function renderBody() {
     items.forEach((r) => grid.appendChild(recipeCardEl(r)));
     body.appendChild(section);
   });
+}
+
+/* ---- Recipes & components (flat sub-recipe catalog) ---- */
+function computeComponentCatalog() {
+  const map = new Map();
+  state.recipes.filter((r) => !r.archived).forEach((r) => {
+    (r.components || []).forEach((c, idx) => {
+      const key = (c.title || "").trim().toLowerCase() + "|" + (c.ingredients || []).join("~") + "|" + (c.method || []).join("~");
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          title: c.title || "Untitled",
+          draft: !!c.draft,
+          ingredients: c.ingredients || [],
+          method: c.method || [],
+          category: r.category,
+          usedIn: [],
+        });
+      }
+      const entry = map.get(key);
+      entry.draft = entry.draft || !!c.draft;
+      entry.usedIn.push({ recipeId: r.id, recipeName: r.nameEn, componentIndex: idx });
+    });
+  });
+  return Array.from(map.values());
+}
+
+function matchesComponentSearch(entry, q) {
+  if (!q) return true;
+  const hay = [
+    entry.title, ...entry.ingredients, ...entry.method,
+    ...entry.usedIn.map((u) => u.recipeName),
+  ].join(" ").toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+
+function renderComponentsBody() {
+  const body = document.getElementById("app-body-content");
+  const q = state.query.trim();
+  let list = computeComponentCatalog();
+  if (q) list = list.filter((e) => matchesComponentSearch(e, q));
+  else if (state.activeCat !== "all") list = list.filter((e) => e.category === state.activeCat);
+
+  document.getElementById("result-count").textContent = q ? `${list.length} result${list.length === 1 ? "" : "s"} for "${q}"` : "";
+  document.getElementById("result-count").classList.toggle("hidden", !q);
+
+  body.innerHTML = "";
+
+  if (list.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "No sub-recipes match yet. Try another ingredient, sauce name, or dish it's used in.";
+    body.appendChild(empty);
+    return;
+  }
+
+  const byCat = {};
+  list.forEach((e) => { (byCat[e.category] = byCat[e.category] || []).push(e); });
+
+  const catsToShow = (q || state.activeCat === "all")
+    ? state.categories
+    : state.categories.filter((c) => c.id === state.activeCat);
+
+  catsToShow.forEach((cat) => {
+    const items = byCat[cat.id];
+    if (!items || items.length === 0) return;
+    const section = document.createElement("div");
+    section.className = "section-block";
+    section.innerHTML = `
+      <div class="section-head">
+        <span class="section-title">${cat.label}</span>
+        <span class="section-count">${items.length} sub-recipe${items.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="recipe-grid"></div>
+    `;
+    const grid = section.querySelector(".recipe-grid");
+    items.forEach((e) => grid.appendChild(componentCardEl(e)));
+    body.appendChild(section);
+  });
+}
+
+function componentCardEl(entry) {
+  const card = document.createElement("div");
+  card.className = "recipe-card";
+  const dishNames = [...new Set(entry.usedIn.map((u) => u.recipeName))];
+  card.innerHTML = `
+    <div class="recipe-card-img-fallback">${initials(entry.title)}</div>
+    <div class="recipe-card-body">
+      <div class="recipe-card-title-row">
+        <div>
+          <div class="recipe-card-title">${escapeHtml(entry.title)}</div>
+          <div class="recipe-card-ar">Used in: ${escapeHtml(dishNames.join(", "))}</div>
+        </div>
+      </div>
+      <div class="recipe-card-meta">
+        <span class="badge ${entry.draft ? "badge-draft" : "badge-verified"}">${entry.draft ? "Draft — needs review" : "Verified"}</span>
+        <span class="badge">${entry.ingredients.length} ingredient${entry.ingredients.length === 1 ? "" : "s"}</span>
+        ${dishNames.length > 1 ? `<span class="badge">Used in ${dishNames.length} dishes</span>` : ""}
+      </div>
+    </div>
+  `;
+  card.addEventListener("click", () => openComponentModal(entry.key));
+  return card;
 }
 
 function initials(text) {
@@ -333,16 +456,85 @@ function escapeHtml(s) {
 /* ============================== Recipe modal ============================== */
 function openModal(id) {
   state.selectedRecipeId = id;
+  state.selectedComponentKey = null;
   state.editFormOpen = false;
+  renderModal();
+  document.getElementById("modal-backdrop").classList.remove("hidden");
+}
+function openComponentModal(key) {
+  state.selectedComponentKey = key;
+  state.selectedRecipeId = null;
   renderModal();
   document.getElementById("modal-backdrop").classList.remove("hidden");
 }
 function closeModal() {
   state.selectedRecipeId = null;
+  state.selectedComponentKey = null;
   document.getElementById("modal-backdrop").classList.add("hidden");
 }
 
 function renderModal() {
+  if (state.selectedComponentKey) renderComponentModal();
+  else renderRecipeModal();
+}
+
+function renderComponentModal() {
+  const entry = computeComponentCatalog().find((e) => e.key === state.selectedComponentKey);
+  const wrap = document.getElementById("modal-card");
+  if (!entry) { wrap.innerHTML = ""; return; }
+  const dishNames = [...new Set(entry.usedIn.map((u) => u.recipeName))];
+  const primary = entry.usedIn[0];
+
+  wrap.innerHTML = `
+    <button class="modal-close" id="modal-close-btn">✕</button>
+    <div class="modal-img-fallback">${initials(entry.title)}</div>
+    <div class="modal-body">
+      <div class="modal-title-row">
+        <div>
+          <div class="modal-title">${escapeHtml(entry.title)}</div>
+        </div>
+      </div>
+      <div class="modal-badges">
+        <span class="badge ${entry.draft ? "badge-draft" : "badge-verified"}">${entry.draft ? "Draft — needs chef review" : "Verified from source"}</span>
+      </div>
+
+      <div class="note-box">
+        <b>Used in:</b>
+        ${dishNames.map((n) => `<a href="#" class="used-in-link" data-recipe-name="${escapeHtml(n)}">${escapeHtml(n)}</a>`).join(", ")}
+        ${dishNames.length > 1 ? "<br><span style='color:var(--muted);'>This is a shared sub-recipe — if you request a change here, remember it may need updating in the other dishes too.</span>" : ""}
+      </div>
+
+      <div class="component-block">
+        <div class="component-title">Ingredients</div>
+        ${entry.ingredients.length ? `<ul class="ingredients-list">${entry.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : `<div class="hint-text">No ingredients listed.</div>`}
+      </div>
+      <div class="component-block">
+        <div class="component-title">Method</div>
+        ${entry.method.length ? `<ol class="method-list">${entry.method.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ol>` : `<div class="hint-text">No method listed.</div>`}
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" id="req-edit-btn">✎ Request a change</button>
+        <button class="btn btn-ghost btn-sm" id="open-parent-btn">📖 Open full dish recipe</button>
+      </div>
+      <div id="modal-extra"></div>
+    </div>
+  `;
+
+  document.getElementById("modal-close-btn").addEventListener("click", closeModal);
+  document.getElementById("open-parent-btn").addEventListener("click", () => openModal(primary.recipeId));
+  document.querySelectorAll(".used-in-link").forEach((a) => a.addEventListener("click", (e) => {
+    e.preventDefault();
+    const u = entry.usedIn.find((x) => x.recipeName === a.dataset.recipeName);
+    if (u) openModal(u.recipeId);
+  }));
+  document.getElementById("req-edit-btn").addEventListener("click", () => {
+    const parentRecipe = state.recipes.find((r) => r.id === primary.recipeId);
+    if (parentRecipe) showEditRequestForm(parentRecipe, `component:${primary.componentIndex}:ingredients`);
+  });
+}
+
+function renderRecipeModal() {
   const r = state.recipes.find((x) => x.id === state.selectedRecipeId);
   const wrap = document.getElementById("modal-card");
   if (!r) { wrap.innerHTML = ""; return; }
@@ -420,7 +612,7 @@ function renderModal() {
 }
 
 /* ---- Request-a-change form ---- */
-function showEditRequestForm(r) {
+function showEditRequestForm(r, presetField) {
   const extra = document.getElementById("modal-extra");
   const fieldOptions = [
     { v: "prepTime", l: "Prep time" },
@@ -437,7 +629,7 @@ function showEditRequestForm(r) {
       <div class="component-title">Request a change</div>
       <label class="form-label">What would you like to change?</label>
       <select class="field" id="req-field">
-        ${fieldOptions.map((o) => `<option value="${o.v}">${o.l}</option>`).join("")}
+        ${fieldOptions.map((o) => `<option value="${o.v}" ${presetField === o.v ? "selected" : ""}>${o.l}</option>`).join("")}
       </select>
       <label class="form-label">New value</label>
       <textarea class="field" id="req-value" rows="4" placeholder="For ingredients/method, one item per line"></textarea>
