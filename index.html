@@ -21,7 +21,7 @@
       <input id="gate-name" class="field" placeholder="Your name" autocomplete="off">
       <input id="gate-pin" class="field" placeholder="Access code" type="password" inputmode="numeric" autocomplete="off">
       <div id="gate-error" class="error-text"></div>
-      <button id="gate-unlock-btn" class="btn btn-gold btn-block">🔒 Unlock</button>
+      <button id="gate-unlock-btn" class="btn btn-gold btn-block">Unlock</button>
       <div class="hint-text">Ask your manager for the access code. Admin and kitchen-staff codes are different.</div>
     </div>
   </div>
@@ -29,46 +29,49 @@
 
 <!-- ============================== Main app ============================== -->
 <div id="app-shell" class="hidden">
-  <div id="app-header">
-    <div class="header-inner">
-      <div class="header-row">
-        <div class="header-left">
-          <div class="header-title">CENTRAL RECIPE BOOK</div>
+  <button id="mobile-menu-btn" class="mobile-menu-btn">☰</button>
+  <div id="sidebar-scrim" class="sidebar-scrim"></div>
+
+  <div class="shell">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand-mark">CENTRAL RECIPE BOOK</div>
+        <div class="brand-sub">KITCHEN EDITION</div>
+      </div>
+
+      <div class="sidebar-search">
+        <div class="sidebar-search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d838f" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="search-input" class="field" placeholder="Search recipes…">
         </div>
-        <div class="header-right">
-          <button id="fav-filter-btn" class="pill-btn" title="Show favorites only">★ Favorites</button>
-          <button id="my-requests-btn" class="pill-btn">My requests</button>
-          <button id="admin-open-btn" class="pill-btn hidden" title="Review pending requests">
-            <span id="admin-crown" class="hidden">👑</span> Admin dashboard
-            <span id="req-badge" class="badge-count hidden">0</span>
-          </button>
-          <span id="who-am-i" class="hint-text" style="margin:0;"></span>
-          <button id="lock-btn" class="pill-btn" title="Lock">⇦ Lock</button>
+      </div>
+
+      <nav id="sidebar-nav" class="sidebar-nav"></nav>
+
+      <div class="sidebar-bottom">
+        <div class="who-row"><span id="who-am-i"></span></div>
+        <button id="admin-open-btn" class="sidebar-btn hidden">👑 Admin dashboard <span id="req-badge" class="badge-count hidden">0</span></button>
+        <button id="my-requests-btn" class="sidebar-btn">My requests</button>
+        <button id="lock-btn" class="sidebar-btn">⇦ Lock</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-header">
+        <div>
+          <div id="content-title" class="content-title">All Dishes</div>
+          <div id="result-count" class="content-sub hidden"></div>
         </div>
       </div>
 
-      <div class="search-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a9887a" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="search-input" class="field search-input" placeholder="Search…">
+      <div id="app-body-content"></div>
+
+      <div class="legend-footer">
+        (D) Dairy · (G) Gluten · (S) Seafood · (Sh) Shellfish · (N) Nuts · (V) Vegetarian · (Vg) Vegan · (P) Pork · (Soy) Soy
+        <br>
+        Recipes marked <b>Draft</b> were reconstructed from photos/menu descriptions where the source prep book was incomplete, and still need kitchen confirmation.
       </div>
-
-      <div class="cat-scroll" style="margin-top:10px;">
-        <button id="view-dishes-btn" class="cat-pill active">🍽 Dishes</button>
-        <button id="view-components-btn" class="cat-pill">🧾 All Recipes</button>
-      </div>
-
-      <div id="cat-scroll" class="cat-scroll"></div>
-    </div>
-  </div>
-
-  <div id="app-body">
-    <div id="result-count" class="hint-text hidden" style="margin-bottom:10px;"></div>
-    <div id="app-body-content"></div>
-    <div class="legend-footer">
-      (D) Dairy · (G) Gluten · (S) Seafood · (Sh) Shellfish · (N) Nuts · (V) Vegetarian · (Vg) Vegan · (P) Pork · (Soy) Soy
-      <br>
-      Recipes marked <b>Draft</b> were reconstructed from photos/menu descriptions where the source prep book was incomplete, and still need kitchen confirmation.
-    </div>
+    </main>
   </div>
 </div>
 
@@ -99,6 +102,14 @@
 <script>
   document.getElementById("drawer-close-btn").addEventListener("click", () => {
     document.getElementById("drawer-backdrop").classList.add("hidden");
+  });
+  document.getElementById("mobile-menu-btn").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("open");
+    document.getElementById("sidebar-scrim").classList.toggle("open");
+  });
+  document.getElementById("sidebar-scrim").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebar-scrim").classList.remove("open");
   });
 </script>
 </body>

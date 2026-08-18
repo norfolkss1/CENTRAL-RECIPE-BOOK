@@ -19,7 +19,7 @@ const state = {
   viewMode: "dishes", // 'dishes' | 'components'
   selectedRecipeId: null,
   selectedComponentKey: null,
-  dishSubComponentIndex: null,
+  activeDetailTab: 0,
   favorites: JSON.parse(localStorage.getItem("me-recipe-favs") || "[]"),
   adminOpen: false,
   adminTab: "requests",
@@ -63,16 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("gate-unlock-btn").addEventListener("click", handleUnlock);
   document.getElementById("gate-pin").addEventListener("keydown", (e) => { if (e.key === "Enter") handleUnlock(); });
   document.getElementById("search-input").addEventListener("input", (e) => { state.query = e.target.value; renderBody(); });
-  document.getElementById("view-dishes-btn").addEventListener("click", () => setViewMode("dishes"));
-  document.getElementById("view-components-btn").addEventListener("click", () => setViewMode("components"));
   document.getElementById("lock-btn").addEventListener("click", lockApp);
   document.getElementById("admin-open-btn").addEventListener("click", () => openAdmin("requests"));
   document.getElementById("my-requests-btn").addEventListener("click", () => openAdmin("mine"));
-  document.getElementById("fav-filter-btn").addEventListener("click", () => {
-    state.showFavoritesOnly = !state.showFavoritesOnly;
-    document.getElementById("fav-filter-btn").classList.toggle("active-role", state.showFavoritesOnly);
-    renderBody();
-  });
   document.getElementById("modal-backdrop").addEventListener("click", (e) => {
     if (e.target.id === "modal-backdrop") closeModal();
   });
@@ -125,9 +118,8 @@ function lockApp() {
 function enterApp() {
   document.getElementById("gate-screen").classList.add("hidden");
   document.getElementById("app-shell").classList.remove("hidden");
-  document.getElementById("who-am-i").textContent = state.name;
+  document.getElementById("who-am-i").textContent = `${state.name} · ${state.role === "admin" ? "Admin" : "Kitchen staff"}`;
   document.getElementById("admin-open-btn").classList.toggle("hidden", state.role !== "admin");
-  document.getElementById("admin-crown").classList.toggle("hidden", state.role !== "admin");
 
   listenCategories();
   listenRecipes();
@@ -144,7 +136,7 @@ function listenCategories() {
     db.collection("categories").orderBy("order").onSnapshot(
       (s) => {
         state.categories = s.docs.map((d) => d.data());
-        renderCategoryPills();
+        renderSidebarNav();
         renderBody();
       },
       (err) => showStatus(connectionErrorMsg(err))
@@ -196,34 +188,88 @@ function listenRequests() {
   );
 }
 
-/* ============================== View mode ============================== */
+/* ============================== View mode / navigation ============================== */
 function setViewMode(mode) {
   state.viewMode = mode;
-  document.getElementById("view-dishes-btn").classList.toggle("active", mode === "dishes");
-  document.getElementById("view-components-btn").classList.toggle("active", mode === "components");
   document.getElementById("search-input").placeholder = mode === "dishes"
     ? "Search dishes, ingredients, method…"
     : "Search sauces, dressings, sub-recipes…";
-  renderBody();
 }
 
-/* ============================== Category pills ============================== */
-function renderCategoryPills() {
-  const wrap = document.getElementById("cat-scroll");
-  wrap.innerHTML = "";
-  const allBtn = catPillEl("all", "All");
-  wrap.appendChild(allBtn);
-  state.categories.forEach((c) => wrap.appendChild(catPillEl(c.id, c.label)));
+function goToAllDishes() {
+  state.viewMode = "dishes"; state.activeCat = "all"; state.showFavoritesOnly = false;
+  setViewMode("dishes"); renderSidebarNav(); renderBody(); closeMobileSidebar();
 }
-function catPillEl(id, label) {
+function goToCategory(catId) {
+  state.viewMode = "dishes"; state.activeCat = catId; state.showFavoritesOnly = false;
+  setViewMode("dishes"); renderSidebarNav(); renderBody(); closeMobileSidebar();
+}
+function goToFavorites() {
+  state.viewMode = "dishes"; state.activeCat = "all"; state.showFavoritesOnly = true;
+  setViewMode("dishes"); renderSidebarNav(); renderBody(); closeMobileSidebar();
+}
+function goToAllRecipes() {
+  state.viewMode = "components"; state.showFavoritesOnly = false;
+  setViewMode("components"); renderSidebarNav(); renderBody(); closeMobileSidebar();
+}
+function closeMobileSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-scrim").classList.remove("open");
+}
+
+/* ============================== Sidebar nav ============================== */
+function renderSidebarNav() {
+  const wrap = document.getElementById("sidebar-nav");
+  const counts = {};
+  state.recipes.filter((r) => !r.archived).forEach((r) => { counts[r.category] = (counts[r.category] || 0) + 1; });
+  const totalDishes = state.recipes.filter((r) => !r.archived).length;
+  const isDishesAll = state.viewMode === "dishes" && state.activeCat === "all" && !state.showFavoritesOnly;
+  const isFavs = state.viewMode === "dishes" && state.showFavoritesOnly;
+  const isAllRecipes = state.viewMode === "components";
+
+  wrap.innerHTML = "";
+  wrap.appendChild(navItem({ icon: "🍽", label: "All Dishes", count: totalDishes, active: isDishesAll, onClick: goToAllDishes }));
+
+  const label = document.createElement("div");
+  label.className = "nav-section-label";
+  label.textContent = "Categories";
+  wrap.appendChild(label);
+  state.categories.forEach((c) => {
+    const active = state.viewMode === "dishes" && state.activeCat === c.id && !state.showFavoritesOnly;
+    wrap.appendChild(navItem({ dot: true, label: c.label, count: counts[c.id] || 0, active, onClick: () => goToCategory(c.id) }));
+  });
+
+  const label2 = document.createElement("div");
+  label2.className = "nav-section-label";
+  label2.textContent = "Browse";
+  wrap.appendChild(label2);
+  wrap.appendChild(navItem({ icon: "★", label: "Favorites", count: state.favorites.length, active: isFavs, onClick: goToFavorites }));
+  wrap.appendChild(navItem({ icon: "🧾", label: "All Recipes (flat list)", active: isAllRecipes, onClick: goToAllRecipes }));
+}
+
+function navItem({ icon, dot, label, count, active, onClick }) {
   const b = document.createElement("button");
-  b.className = "cat-pill" + (state.activeCat === id ? " active" : "");
-  b.textContent = label;
-  b.addEventListener("click", () => { state.activeCat = id; state.showFavoritesOnly = false; renderCategoryPills(); renderBody(); });
+  b.className = "nav-item" + (active ? " active" : "");
+  b.innerHTML = `
+    ${icon ? `<span>${icon}</span>` : dot ? `<span class="nav-dot"></span>` : ""}
+    <span>${escapeHtml(label)}</span>
+    ${count !== undefined ? `<span class="nav-count">${count}</span>` : ""}
+  `;
+  b.addEventListener("click", onClick);
   return b;
 }
 
+function updateContentTitle() {
+  const el = document.getElementById("content-title");
+  if (state.viewMode === "components") { el.textContent = "All Recipes"; return; }
+  if (state.showFavoritesOnly) { el.textContent = "Favorites"; return; }
+  if (state.activeCat === "all") { el.textContent = "All Dishes"; return; }
+  const cat = state.categories.find((c) => c.id === state.activeCat);
+  el.textContent = cat ? cat.label : "Dishes";
+}
+
 /* ============================== Body / grid ============================== */
+
 function matchesSearch(r, q) {
   if (!q) return true;
   const hay = [
@@ -248,6 +294,7 @@ function recipeStatus(r) {
 }
 
 function renderBody() {
+  updateContentTitle();
   if (state.viewMode === "components") renderComponentsBody();
   else renderDishesBody();
 }
@@ -257,8 +304,8 @@ function renderDishesBody() {
   const list = visibleRecipes();
   const q = state.query.trim();
 
-  document.getElementById("result-count").textContent = q ? `${list.length} result${list.length === 1 ? "" : "s"} for "${q}"` : "";
-  document.getElementById("result-count").classList.toggle("hidden", !q);
+  document.getElementById("result-count").textContent = `${list.length} dish${list.length === 1 ? "" : "es"}${q ? ` for "${q}"` : ""}`;
+  document.getElementById("result-count").classList.remove("hidden");
 
   body.innerHTML = "";
 
@@ -283,19 +330,20 @@ function renderDishesBody() {
   const catsToShow = (q || state.activeCat === "all" || state.showFavoritesOnly)
     ? state.categories
     : state.categories.filter((c) => c.id === state.activeCat);
+  const showHeaders = catsToShow.length > 1 || q || state.showFavoritesOnly;
 
   catsToShow.forEach((cat) => {
     const items = byCat[cat.id];
     if (!items || items.length === 0) return;
     const section = document.createElement("div");
     section.className = "section-block";
-    section.innerHTML = `
+    section.innerHTML = showHeaders ? `
       <div class="section-head">
         <span class="section-title">${cat.label}</span>
         <span class="section-count">${items.length} dish${items.length === 1 ? "" : "es"}</span>
       </div>
       <div class="list-box"></div>
-    `;
+    ` : `<div class="list-box"></div>`;
     const box = section.querySelector(".list-box");
     items.forEach((r) => box.appendChild(dishListRowEl(r)));
     body.appendChild(section);
@@ -360,8 +408,8 @@ function renderComponentsBody() {
   else if (state.activeCat !== "all") list = list.filter((e) => e.category === state.activeCat);
   list.sort((a, b) => a.title.localeCompare(b.title));
 
-  document.getElementById("result-count").textContent = q ? `${list.length} result${list.length === 1 ? "" : "s"} for "${q}"` : "";
-  document.getElementById("result-count").classList.toggle("hidden", !q);
+  document.getElementById("result-count").textContent = `${list.length} item${list.length === 1 ? "" : "s"}${q ? ` for "${q}"` : ""}`;
+  document.getElementById("result-count").classList.remove("hidden");
 
   body.innerHTML = "";
 
@@ -375,13 +423,7 @@ function renderComponentsBody() {
 
   const section = document.createElement("div");
   section.className = "section-block";
-  section.innerHTML = `
-    <div class="section-head">
-      <span class="section-title">All Recipes</span>
-      <span class="section-count">${list.length} item${list.length === 1 ? "" : "s"}</span>
-    </div>
-    <div class="list-box"></div>
-  `;
+  section.innerHTML = `<div class="list-box"></div>`;
   const box = section.querySelector(".list-box");
   list.forEach((e) => box.appendChild(componentListRowEl(e)));
   body.appendChild(section);
@@ -406,15 +448,40 @@ function initials(text) {
 }
 
 
-function allergenChipsHtml(codes, size) {
+function allergenPillsHtml(codes, source) {
   if (!codes || codes.length === 0) return "";
-  return codes.map((c) => `<span class="allergen-chip${size === "lg" ? " lg" : ""}" title="${ALLERGEN_LABELS[c] || c}">${c}</span>`).join("");
+  return codes.map((c) => `<span class="allergen-pill" title="${source === "unverified-menu" ? "Unverified — from guest menu" : ""}">${ALLERGEN_LABELS[c] || c}</span>`).join("");
+}
+
+function ingredientListHtml(items, keyPrefix) {
+  if (!items || items.length === 0) return `<div class="hint-text" style="margin-top:0;">No ingredients listed.</div>`;
+  return `<ul class="ingredient-list">${items.map((i, idx) => `
+    <li class="ingredient-row" data-check-row="${keyPrefix}-${idx}">
+      <input type="checkbox" id="chk-${keyPrefix}-${idx}">
+      <label for="chk-${keyPrefix}-${idx}">${escapeHtml(i)}</label>
+    </li>
+  `).join("")}</ul>`;
+}
+function wireIngredientChecks() {
+  document.querySelectorAll("[data-check-row]").forEach((row) => {
+    const cb = row.querySelector("input[type=checkbox]");
+    if (!cb) return;
+    cb.addEventListener("change", () => row.classList.toggle("checked", cb.checked));
+  });
+}
+
+function methodListHtml(steps) {
+  if (!steps || steps.length === 0) return `<div class="hint-text" style="margin-top:0;">No method listed.</div>`;
+  return `<ol class="method-steps">${steps.map((m) => `
+    <li class="method-step"><span class="method-step-num"></span><span>${escapeHtml(m)}</span></li>
+  `).join("")}</ol>`;
 }
 
 function toggleFavorite(id) {
   const i = state.favorites.indexOf(id);
   if (i >= 0) state.favorites.splice(i, 1); else state.favorites.push(id);
   localStorage.setItem("me-recipe-favs", JSON.stringify(state.favorites));
+  renderSidebarNav();
   renderBody();
   if (state.selectedRecipeId === id) renderModal();
 }
@@ -427,7 +494,7 @@ function escapeHtml(s) {
 function openModal(id) {
   state.selectedRecipeId = id;
   state.selectedComponentKey = null;
-  state.dishSubComponentIndex = null;
+  state.activeDetailTab = 0;
   state.editFormOpen = false;
   renderModal();
   document.getElementById("modal-backdrop").classList.remove("hidden");
@@ -435,14 +502,12 @@ function openModal(id) {
 function openComponentModal(key) {
   state.selectedComponentKey = key;
   state.selectedRecipeId = null;
-  state.dishSubComponentIndex = null;
   renderModal();
   document.getElementById("modal-backdrop").classList.remove("hidden");
 }
 function closeModal() {
   state.selectedRecipeId = null;
   state.selectedComponentKey = null;
-  state.dishSubComponentIndex = null;
   document.getElementById("modal-backdrop").classList.add("hidden");
 }
 
@@ -477,13 +542,15 @@ function renderComponentModal() {
         ${dishNames.length > 1 ? "<br><span style='color:var(--muted);'>This is a shared sub-recipe — if you request a change here, remember it may need updating in the other dishes too.</span>" : ""}
       </div>
 
-      <div class="component-block">
-        <div class="component-title">Ingredients</div>
-        ${entry.ingredients.length ? `<ul class="ingredients-list">${entry.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : `<div class="hint-text">No ingredients listed.</div>`}
-      </div>
-      <div class="component-block">
-        <div class="component-title">Method</div>
-        ${entry.method.length ? `<ol class="method-list">${entry.method.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ol>` : `<div class="hint-text">No method listed.</div>`}
+      <div class="part-panel-grid" style="margin-top:20px;">
+        <div>
+          <div class="panel-heading">Ingredients</div>
+          ${ingredientListHtml(entry.ingredients, "comp")}
+        </div>
+        <div>
+          <div class="panel-heading">Method</div>
+          ${methodListHtml(entry.method)}
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -496,6 +563,7 @@ function renderComponentModal() {
 
   document.getElementById("modal-close-btn").addEventListener("click", closeModal);
   document.getElementById("open-parent-btn").addEventListener("click", () => openModal(primary.recipeId));
+  wireIngredientChecks();
   document.querySelectorAll(".used-in-link").forEach((a) => a.addEventListener("click", (e) => {
     e.preventDefault();
     const u = entry.usedIn.find((x) => x.recipeName === a.dataset.recipeName);
@@ -512,13 +580,13 @@ function renderRecipeModal() {
   const wrap = document.getElementById("modal-card");
   if (!r) { wrap.innerHTML = ""; return; }
 
-  if (state.dishSubComponentIndex !== null && state.dishSubComponentIndex !== undefined) {
-    renderRecipePartModal(r, state.dishSubComponentIndex);
-    return;
-  }
-
   const status = recipeStatus(r);
   const isFav = state.favorites.includes(r.id);
+  const parts = r.components || [];
+  if (state.activeDetailTab === undefined || state.activeDetailTab === null || state.activeDetailTab >= parts.length) {
+    state.activeDetailTab = 0;
+  }
+  const activePart = parts[state.activeDetailTab] || { title: "", ingredients: [], method: [] };
 
   wrap.innerHTML = `
     <button class="modal-close" id="modal-close-btn">✕</button>
@@ -529,41 +597,47 @@ function renderRecipeModal() {
           <div class="modal-title">${escapeHtml(r.nameEn)}</div>
           ${r.nameAr ? `<div class="modal-title-ar" dir="rtl">${escapeHtml(r.nameAr)}</div>` : ""}
         </div>
-        <button class="fav-star${isFav ? " active" : ""}" style="font-size:22px;" id="modal-fav-btn">★</button>
+        <button class="fav-star${isFav ? " active" : ""}" id="modal-fav-btn">★</button>
       </div>
       <div class="modal-badges">
-        <span class="badge ${status === "draft" ? "badge-draft" : "badge-verified"}">${status === "draft" ? "Draft — needs chef review" : "Verified from source"}</span>
+        <span class="badge ${status === "draft" ? "badge-draft" : "badge-verified"}">${status === "draft" ? "⚠ Draft — needs chef review" : "✓ Verified from source"}</span>
         <span class="badge">Version ${r.version || 1}</span>
         ${r.archived ? '<span class="badge badge-archived">Archived</span>' : ""}
       </div>
 
-      <div class="meta-strip">
-        <span><b>Prep:</b> ${r.prepTime || "not set"}</span>
-        <span><b>Cook:</b> ${r.cookTime || "not set"}</span>
-        <span><b>Yield:</b> ${r.yield || "not set"}</span>
+      <div class="stat-strip">
+        <div class="stat-box"><div class="stat-box-label">Prep</div><div class="stat-box-value">${escapeHtml(r.prepTime) || "—"}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Cook</div><div class="stat-box-value">${escapeHtml(r.cookTime) || "—"}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Yield</div><div class="stat-box-value">${escapeHtml(r.yield) || "—"}</div></div>
       </div>
 
       ${(r.allergens && r.allergens.length) ? `
-        <div>
-          <div class="form-label">Allergens ${r.allergensSource === "unverified-menu" ? "(unverified — from guest menu)" : ""}</div>
-          <div class="allergen-chips">${allergenChipsHtml(r.allergens, "lg")}</div>
-        </div>` : ""}
+        <div class="form-label">Allergens ${r.allergensSource === "unverified-menu" ? "(unverified — from guest menu)" : ""}</div>
+        <div class="allergen-row">${allergenPillsHtml(r.allergens, r.allergensSource)}</div>` : ""}
 
       ${r.dishExplanation ? `<div class="note-box">${escapeHtml(r.dishExplanation)}</div>` : ""}
       ${r.chefNotes ? `<div class="note-box"><b>Chef notes:</b> ${escapeHtml(r.chefNotes)}</div>` : ""}
 
-      <div class="component-block">
-        <div class="component-title">Recipe parts (${(r.components || []).length})</div>
-        <div class="hint-text" style="margin-top:0;">Tap a part to see its ingredients and method.</div>
-        <div class="list-box" style="margin-top:8px;">
-          ${(r.components || []).map((c, i) => `
-            <div class="list-row" data-part="${i}">
-              <span class="list-row-dot ${c.draft ? "draft" : ""}" title="${c.draft ? "Draft — needs review" : "Verified"}"></span>
-              <span class="list-row-name">${escapeHtml(c.title)}</span>
-              <span class="list-row-sub">${(c.ingredients || []).length} ingredient${(c.ingredients || []).length === 1 ? "" : "s"}</span>
-              <span class="list-chevron">›</span>
-            </div>
+      ${parts.length > 1 ? `
+        <div class="part-tabs">
+          ${parts.map((c, i) => `
+            <button class="part-tab${i === state.activeDetailTab ? " active" : ""}" data-tab="${i}">
+              ${c.draft ? '<span class="dot"></span>' : ""}${escapeHtml(c.title)}
+            </button>
           `).join("")}
+        </div>
+      ` : `<div class="panel-heading" style="margin-top:22px;">${escapeHtml(activePart.title)}</div>`}
+
+      <div class="part-panel">
+        <div class="part-panel-grid">
+          <div>
+            <div class="panel-heading">Ingredients</div>
+            ${ingredientListHtml(activePart.ingredients, "dish" + state.activeDetailTab)}
+          </div>
+          <div>
+            <div class="panel-heading">Method</div>
+            ${methodListHtml(activePart.method)}
+          </div>
         </div>
       </div>
 
@@ -583,11 +657,13 @@ function renderRecipeModal() {
 
   document.getElementById("modal-close-btn").addEventListener("click", closeModal);
   document.getElementById("modal-fav-btn").addEventListener("click", () => toggleFavorite(r.id));
-  document.getElementById("req-edit-btn").addEventListener("click", () => showEditRequestForm(r));
+  document.getElementById("req-edit-btn").addEventListener("click", () => showEditRequestForm(r, `component:${state.activeDetailTab}:ingredients`));
   document.getElementById("history-btn").addEventListener("click", () => showHistory(r));
   document.getElementById("print-btn").addEventListener("click", () => printRecipe(r));
-  document.querySelectorAll("[data-part]").forEach((el) => el.addEventListener("click", () => {
-    state.dishSubComponentIndex = Number(el.dataset.part);
+  wireIngredientChecks();
+  document.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => {
+    state.activeDetailTab = Number(el.dataset.tab);
+    document.getElementById("modal-extra").innerHTML = "";
     renderModal();
   }));
   if (state.role === "admin") {
@@ -596,43 +672,8 @@ function renderRecipeModal() {
   }
 }
 
-function renderRecipePartModal(r, idx) {
-  const wrap = document.getElementById("modal-card");
-  const c = (r.components || [])[idx];
-  if (!c) { state.dishSubComponentIndex = null; renderRecipeModal(); return; }
-  wrap.innerHTML = `
-    <button class="modal-close" id="modal-close-btn">✕</button>
-    <div class="modal-body" style="padding-top:56px;">
-      <button class="btn btn-ghost btn-sm" id="back-to-dish-btn">← Back to ${escapeHtml(r.nameEn)}</button>
-
-      <div class="modal-title-row" style="margin-top:16px;">
-        <div class="modal-title">${escapeHtml(c.title)}</div>
-      </div>
-      <div class="modal-badges">
-        <span class="badge ${c.draft ? "badge-draft" : "badge-verified"}">${c.draft ? "Draft — needs chef review" : "Verified from source"}</span>
-      </div>
-
-      <div class="component-block">
-        <div class="component-title">Ingredients</div>
-        ${(c.ingredients || []).length ? `<ul class="ingredients-list">${c.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : `<div class="hint-text">No ingredients listed.</div>`}
-      </div>
-      <div class="component-block">
-        <div class="component-title">Method</div>
-        ${(c.method || []).length ? `<ol class="method-list">${c.method.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ol>` : `<div class="hint-text">No method listed.</div>`}
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-outline btn-sm" id="req-edit-btn">✎ Request a change to this part</button>
-      </div>
-      <div id="modal-extra"></div>
-    </div>
-  `;
-  document.getElementById("modal-close-btn").addEventListener("click", closeModal);
-  document.getElementById("back-to-dish-btn").addEventListener("click", () => { state.dishSubComponentIndex = null; renderModal(); });
-  document.getElementById("req-edit-btn").addEventListener("click", () => showEditRequestForm(r, `component:${idx}:ingredients`));
-}
-
 /* ---- Request-a-change form ---- */
+
 function showEditRequestForm(r, presetField) {
   const extra = document.getElementById("modal-extra");
   const fieldOptions = [
