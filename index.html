@@ -80,6 +80,17 @@
   <div id="modal-card" class="modal-card"></div>
 </div>
 
+<!-- ============================== Full-size image lightbox ============================== -->
+<div id="lightbox-backdrop" class="lightbox-backdrop hidden">
+  <button class="modal-close" id="lightbox-close-btn">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<!-- ============================== Costing calculator modal ============================== -->
+<div id="costing-backdrop" class="modal-backdrop hidden">
+  <div id="costing-card" class="modal-card"></div>
+</div>
+
 <!-- ============================== Admin / my-requests drawer ============================== -->
 <div id="drawer-backdrop" class="drawer-backdrop hidden">
   <div class="drawer">
@@ -92,12 +103,13 @@
 </div>
 
 <!-- Hidden print target -->
-<div id="print-area" style="display:none;"></div>
+<div id="print-area" class="print-only"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="data/seed-data.js"></script>
+<script src="data/costing-data.js"></script>
 <script src="app.js"></script>
 <script>
   document.getElementById("drawer-close-btn").addEventListener("click", () => {
@@ -110,6 +122,15 @@
   document.getElementById("sidebar-scrim").addEventListener("click", () => {
     document.getElementById("sidebar").classList.remove("open");
     document.getElementById("sidebar-scrim").classList.remove("open");
+  });
+  document.getElementById("lightbox-close-btn").addEventListener("click", () => {
+    document.getElementById("lightbox-backdrop").classList.add("hidden");
+  });
+  document.getElementById("lightbox-backdrop").addEventListener("click", (e) => {
+    if (e.target.id === "lightbox-backdrop") document.getElementById("lightbox-backdrop").classList.add("hidden");
+  });
+  document.getElementById("costing-backdrop").addEventListener("click", (e) => {
+    if (e.target.id === "costing-backdrop") closeCosting();
   });
 </script>
 </body>

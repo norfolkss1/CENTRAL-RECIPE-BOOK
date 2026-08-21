@@ -191,9 +191,16 @@ textarea.field { resize: vertical; }
 .list-row-dot { width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0; background: var(--good); }
 .list-row-dot.draft { background: var(--warn); }
 
+.list-row-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: var(--panel-2); }
+.list-row-thumb-fallback {
+  width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0; background: linear-gradient(135deg,#efe3d2,#e7ecec);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--accent);
+}
+
 .list-row-name { font-size: 14.5px; font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .list-row-name .ar { color: var(--muted); font-size: 12.5px; font-weight: 400; margin-left: 8px; }
 .list-row-sub { font-size: 12px; color: var(--muted); flex-shrink: 0; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-row-price { font-size: 13px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
 
 .list-row-star { background: transparent; border: none; cursor: pointer; color: #d7dbe0; font-size: 15px; padding: 2px; flex-shrink: 0; }
 .list-row-star.active { color: var(--accent); }
@@ -231,11 +238,19 @@ textarea.field { resize: vertical; }
   color: var(--ink); cursor: pointer; border-radius: 999px; width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center; z-index: 5;
 }
-.modal-img { width: 100%; height: 240px; object-fit: cover; border-radius: 16px 16px 0 0; display: block; }
+.modal-img { width: 100%; height: 240px; object-fit: cover; border-radius: 16px 16px 0 0; display: block; cursor: zoom-in; }
 .modal-img-fallback {
   width: 100%; height: 150px; border-radius: 16px 16px 0 0; background: linear-gradient(135deg, #efe3d2, #e7ecec);
   display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 700; color: var(--accent);
 }
+
+/* ---------------- Lightbox ---------------- */
+.lightbox-backdrop {
+  position: fixed; inset: 0; background: rgba(5,5,8,0.92); z-index: 150;
+  display: flex; align-items: center; justify-content: center; padding: 30px;
+}
+.lightbox-backdrop img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
+.lightbox-backdrop .modal-close { top: 18px; right: 18px; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff; }
 .modal-body { padding: 22px 26px 26px; }
 .modal-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .modal-title { font-size: 22px; font-weight: 800; letter-spacing: -0.2px; }
@@ -316,15 +331,47 @@ textarea.field { resize: vertical; }
 .legend-footer { margin-top: 40px; font-size: 11px; color: var(--muted); line-height: 1.7; }
 
 /* ---------------- Print ---------------- */
+.print-only { display: none; }
 @media print {
-  body * { visibility: hidden; }
-  #print-area, #print-area * { visibility: visible; }
-  #print-area { position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #111; padding: 24px; font-family: Georgia, serif; }
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block !important; position: static; background: #fff; color: #111; padding: 24px; font-family: Georgia, serif; }
   #print-area h1 { font-size: 22px; }
   #print-area h2 { font-size: 15px; margin-top: 18px; border-bottom: 1px solid #999; padding-bottom: 4px; }
   #print-area .print-meta { font-size: 12px; color: #444; }
   #print-area ul, #print-area ol { font-size: 13px; }
 }
+
+/* ---------------- Recipe/component editor (admin + request form) ---------------- */
+.editor-part {
+  border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: var(--panel-2);
+  position: relative;
+}
+.editor-part-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.editor-part-head input.field { margin-bottom: 0; font-weight: 700; }
+.editor-remove-part { background: #fff; border: 1px solid var(--danger); color: var(--danger-soft); border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+.editor-draft-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+.badge-btn { border: none; cursor: pointer; }
+
+.img-upload-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.img-upload-preview { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); background: var(--panel-2); flex-shrink: 0; }
+.img-upload-preview-fallback { width: 56px; height: 56px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); flex-shrink: 0; }
+
+/* ---------------- Costing table ---------------- */
+.costing-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.costing-table th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); padding: 6px 6px; border-bottom: 1px solid var(--border); }
+.costing-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.costing-table input.field { margin-bottom: 0; padding: 6px 8px; font-size: 12.5px; }
+.costing-table .col-desc { width: 42%; }
+.costing-table .col-num { width: 13%; }
+.costing-table .col-total { width: 14%; text-align: right; font-weight: 600; }
+.costing-remove-ing { background: transparent; border: none; color: var(--danger-soft); cursor: pointer; font-size: 14px; }
+
+.costing-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.costing-summary-box { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; background: var(--panel-2); }
+.costing-summary-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+.costing-summary-value { font-size: 18px; font-weight: 800; margin-top: 3px; }
+@media (max-width: 640px) { .costing-summary { grid-template-columns: 1fr 1fr; } }
 
 /* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {

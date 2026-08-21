@@ -1,4 +1,4 @@
-/* global firebase, FIREBASE_CONFIG, CATEGORIES, SEED_RECIPES */
+/* global firebase, FIREBASE_CONFIG, CATEGORIES, SEED_RECIPES, COSTING_DATA, COSTING_TARGET_PCT, COSTING_MULTIPLIER */
 
 /* ============================== Firebase ============================== */
 firebase.initializeApp(FIREBASE_CONFIG);
@@ -23,6 +23,10 @@ const state = {
   favorites: JSON.parse(localStorage.getItem("me-recipe-favs") || "[]"),
   adminOpen: false,
   adminTab: "requests",
+  pendingImageDataUrl: null,
+  costingRecipeId: null,
+  editFormOpen: false,
+  newRecipeFormOpen: false,
 };
 
 /* ============================== Status banner ============================== */
@@ -162,8 +166,8 @@ function listenRecipes() {
       (s) => {
         state.recipes = s.docs.map((d) => ({ ...d.data(), id: d.id }));
         renderBody();
-        if (state.selectedRecipeId) renderModal();
-        if (state.adminOpen) renderAdmin();
+        if (state.selectedRecipeId && !state.editFormOpen) renderModal();
+        if (state.adminOpen && !state.newRecipeFormOpen) renderAdmin();
       },
       (err) => showStatus(connectionErrorMsg(err))
     );
@@ -182,7 +186,7 @@ function listenRequests() {
       } else {
         badge.classList.add("hidden");
       }
-      if (state.adminOpen) renderAdmin();
+      if (state.adminOpen && !state.newRecipeFormOpen) renderAdmin();
     },
     (err) => showStatus(connectionErrorMsg(err))
   );
@@ -357,7 +361,10 @@ function dishListRowEl(r) {
   const isFav = state.favorites.includes(r.id);
   row.innerHTML = `
     <span class="list-row-dot ${status === "draft" ? "draft" : ""}" title="${status === "draft" ? "Draft — needs review" : "Verified"}"></span>
-    <span class="list-row-name">${escapeHtml(r.nameEn)}${r.nameAr ? `<span class="ar" dir="rtl">${escapeHtml(r.nameAr)}</span>` : ""}</span>
+    ${r.image ? `<img class="list-row-thumb" src="${r.image}" alt="">` : `<div class="list-row-thumb-fallback">${initials(r.nameEn)}</div>`}
+    <span class="list-row-name">${escapeHtml(r.nameEn)}</span>
+    <span class="list-row-sub">${allergenPillsHtml(r.allergens, r.allergensSource) || ""}</span>
+    ${r.price != null ? `<span class="list-row-price">AED ${r.price}</span>` : ""}
     <button class="list-row-star${isFav ? " active" : ""}" data-fav="${r.id}" title="Favorite">★</button>
     <span class="list-chevron">›</span>
   `;
@@ -433,8 +440,11 @@ function componentListRowEl(entry) {
   const row = document.createElement("div");
   row.className = "list-row";
   const dishNames = [...new Set(entry.usedIn.map((u) => u.recipeName))];
+  const parent = state.recipes.find((x) => x.id === entry.usedIn[0].recipeId);
+  const img = parent && parent.image;
   row.innerHTML = `
     <span class="list-row-dot ${entry.draft ? "draft" : ""}" title="${entry.draft ? "Draft — needs review" : "Verified"}"></span>
+    ${img ? `<img class="list-row-thumb" src="${img}" alt="">` : `<div class="list-row-thumb-fallback">${initials(entry.title)}</div>`}
     <span class="list-row-name">${escapeHtml(entry.title)}</span>
     <span class="list-row-sub">${escapeHtml(dishNames.join(", "))}</span>
     <span class="list-chevron">›</span>
@@ -508,6 +518,7 @@ function openComponentModal(key) {
 function closeModal() {
   state.selectedRecipeId = null;
   state.selectedComponentKey = null;
+  state.editFormOpen = false;
   document.getElementById("modal-backdrop").classList.add("hidden");
 }
 
@@ -554,7 +565,7 @@ function renderComponentModal() {
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-outline btn-sm" id="req-edit-btn">✎ Request a change</button>
+        <button class="btn btn-outline btn-sm" id="req-edit-btn">✎ Edit this part</button>
         <button class="btn btn-ghost btn-sm" id="open-parent-btn">📖 Open full dish recipe</button>
       </div>
       <div id="modal-extra"></div>
@@ -571,7 +582,7 @@ function renderComponentModal() {
   }));
   document.getElementById("req-edit-btn").addEventListener("click", () => {
     const parentRecipe = state.recipes.find((r) => r.id === primary.recipeId);
-    if (parentRecipe) showEditRequestForm(parentRecipe, `component:${primary.componentIndex}:ingredients`);
+    if (parentRecipe) { openModal(parentRecipe.id); showRecipeEditForm(parentRecipe); }
   });
 }
 
@@ -587,15 +598,15 @@ function renderRecipeModal() {
     state.activeDetailTab = 0;
   }
   const activePart = parts[state.activeDetailTab] || { title: "", ingredients: [], method: [] };
+  const isAdmin = state.role === "admin";
 
   wrap.innerHTML = `
     <button class="modal-close" id="modal-close-btn">✕</button>
-    ${r.image ? `<img class="modal-img" src="${r.image}" alt="${escapeHtml(r.nameEn)}">` : `<div class="modal-img-fallback">${initials(r.nameEn)}</div>`}
+    ${r.image ? `<img class="modal-img" id="modal-img" src="${r.image}" alt="${escapeHtml(r.nameEn)}" title="Click to view full size">` : `<div class="modal-img-fallback">${initials(r.nameEn)}</div>`}
     <div class="modal-body">
       <div class="modal-title-row">
         <div>
           <div class="modal-title">${escapeHtml(r.nameEn)}</div>
-          ${r.nameAr ? `<div class="modal-title-ar" dir="rtl">${escapeHtml(r.nameAr)}</div>` : ""}
         </div>
         <button class="fav-star${isFav ? " active" : ""}" id="modal-fav-btn">★</button>
       </div>
@@ -609,6 +620,7 @@ function renderRecipeModal() {
         <div class="stat-box"><div class="stat-box-label">Prep</div><div class="stat-box-value">${escapeHtml(r.prepTime) || "—"}</div></div>
         <div class="stat-box"><div class="stat-box-label">Cook</div><div class="stat-box-value">${escapeHtml(r.cookTime) || "—"}</div></div>
         <div class="stat-box"><div class="stat-box-label">Yield</div><div class="stat-box-value">${escapeHtml(r.yield) || "—"}</div></div>
+        <div class="stat-box"><div class="stat-box-label">Price</div><div class="stat-box-value">${r.price != null ? "AED " + r.price : "—"}</div></div>
       </div>
 
       ${(r.allergens && r.allergens.length) ? `
@@ -628,6 +640,8 @@ function renderRecipeModal() {
         </div>
       ` : `<div class="panel-heading" style="margin-top:22px;">${escapeHtml(activePart.title)}</div>`}
 
+      ${isAdmin ? `<button class="badge badge-btn ${activePart.draft ? "badge-draft" : "badge-verified"}" id="toggle-draft-btn" style="margin-top:10px;">${activePart.draft ? "⚠ Draft — tap to mark verified" : "✓ Verified — tap to mark draft"}</button>` : ""}
+
       <div class="part-panel">
         <div class="part-panel-grid">
           <div>
@@ -644,11 +658,11 @@ function renderRecipeModal() {
       ${r.platingNotes ? `<div class="note-box"><b>Plating:</b> ${escapeHtml(r.platingNotes)}</div>` : `<div class="form-label" style="margin-top:16px;">Plating notes: not set yet</div>`}
 
       <div class="modal-actions">
-        <button class="btn btn-outline btn-sm" id="req-edit-btn">✎ Request a change</button>
-        ${state.role === "admin" ? `<button class="btn btn-outline btn-sm" id="admin-edit-btn">🛠 Edit directly (admin)</button>` : ""}
+        <button class="btn btn-outline btn-sm" id="req-edit-btn">${isAdmin ? "🛠 Edit recipe" : "✎ Propose changes"}</button>
+        ${isAdmin ? `<button class="btn btn-outline btn-sm" id="costing-btn">💰 Costing</button>` : ""}
         <button class="btn btn-ghost btn-sm" id="history-btn">🕘 Version history</button>
         <button class="btn btn-ghost btn-sm" id="print-btn">🖨 Print</button>
-        ${state.role === "admin" ? `<button class="btn btn-danger btn-sm" id="archive-btn">${r.archived ? "Restore" : "Archive"}</button>` : ""}
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" id="archive-btn">${r.archived ? "Restore" : "Archive"}</button>` : ""}
       </div>
 
       <div id="modal-extra"></div>
@@ -657,146 +671,236 @@ function renderRecipeModal() {
 
   document.getElementById("modal-close-btn").addEventListener("click", closeModal);
   document.getElementById("modal-fav-btn").addEventListener("click", () => toggleFavorite(r.id));
-  document.getElementById("req-edit-btn").addEventListener("click", () => showEditRequestForm(r, `component:${state.activeDetailTab}:ingredients`));
+  document.getElementById("req-edit-btn").addEventListener("click", () => showRecipeEditForm(r));
   document.getElementById("history-btn").addEventListener("click", () => showHistory(r));
   document.getElementById("print-btn").addEventListener("click", () => printRecipe(r));
+  const img = document.getElementById("modal-img");
+  if (img) img.addEventListener("click", () => openLightbox(r.image));
   wireIngredientChecks();
   document.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => {
     state.activeDetailTab = Number(el.dataset.tab);
     document.getElementById("modal-extra").innerHTML = "";
+    state.editFormOpen = false;
     renderModal();
   }));
-  if (state.role === "admin") {
-    document.getElementById("admin-edit-btn").addEventListener("click", () => showAdminDirectEdit(r));
+  const draftBtn = document.getElementById("toggle-draft-btn");
+  if (draftBtn) draftBtn.addEventListener("click", () => toggleTabDraft(r));
+  if (isAdmin) {
+    document.getElementById("costing-btn").addEventListener("click", () => openCosting(r.id));
     document.getElementById("archive-btn").addEventListener("click", () => toggleArchive(r));
   }
 }
 
-/* ---- Request-a-change form ---- */
-
-function showEditRequestForm(r, presetField) {
-  const extra = document.getElementById("modal-extra");
-  const fieldOptions = [
-    { v: "prepTime", l: "Prep time" },
-    { v: "cookTime", l: "Cook time" },
-    { v: "yield", l: "Yield / portions" },
-    { v: "chefNotes", l: "Chef notes" },
-    { v: "platingNotes", l: "Plating notes" },
-    { v: "allergens", l: "Allergens (comma separated, e.g. D, G, N)" },
-    ...(r.components || []).map((c, i) => ({ v: `component:${i}:ingredients`, l: `Ingredients — ${c.title}` })),
-    ...(r.components || []).map((c, i) => ({ v: `component:${i}:method`, l: `Method — ${c.title}` })),
-  ];
-  extra.innerHTML = `
-    <div class="component-block">
-      <div class="component-title">Request a change</div>
-      <label class="form-label">What would you like to change?</label>
-      <select class="field" id="req-field">
-        ${fieldOptions.map((o) => `<option value="${o.v}" ${presetField === o.v ? "selected" : ""}>${o.l}</option>`).join("")}
-      </select>
-      <label class="form-label">New value</label>
-      <textarea class="field" id="req-value" rows="4" placeholder="For ingredients/method, one item per line"></textarea>
-      <label class="form-label">Why is this change needed?</label>
-      <textarea class="field" id="req-reason" rows="2" placeholder="Explain the reason for the change"></textarea>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-ghost btn-sm" id="req-cancel">Cancel</button>
-        <button class="btn btn-gold btn-sm" id="req-submit">Send for approval</button>
-      </div>
-      <div id="req-confirm" class="hint-text hidden">Sent to the admin for approval.</div>
-    </div>
-  `;
-  document.getElementById("req-cancel").addEventListener("click", () => { extra.innerHTML = ""; });
-  document.getElementById("req-submit").addEventListener("click", async () => {
-    const field = document.getElementById("req-field").value;
-    const newValue = document.getElementById("req-value").value.trim();
-    const reason = document.getElementById("req-reason").value.trim();
-    if (!newValue) return;
-    const fieldLabel = fieldOptions.find((o) => o.v === field)?.l || field;
-    const oldValue = getOldValueForField(r, field);
-    await db.collection("requests").add({
-      recipeId: r.id, recipeName: r.nameEn, field, fieldLabel,
-      oldValue, newValue, reason,
-      requestedBy: state.name, status: "pending",
-      adminNote: "", createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-    document.getElementById("req-submit").disabled = true;
-    document.getElementById("req-confirm").classList.remove("hidden");
-  });
+async function toggleTabDraft(r) {
+  const idx = state.activeDetailTab;
+  const components = (r.components || []).map((c, i) => (i === idx ? { ...c, draft: !c.draft } : c));
+  await applyRecipeChange(r, { components }, `Draft status toggled by ${state.name}`, state.name, state.name);
 }
 
-function getOldValueForField(r, field) {
-  if (field.startsWith("component:")) {
-    const [, idx, sub] = field.split(":");
-    const c = (r.components || [])[Number(idx)];
-    return c ? (c[sub] || []).join("\n") : "";
-  }
-  if (field === "allergens") return (r.allergens || []).join(", ");
-  return r[field] || "";
+/* ---- Lightbox ---- */
+function openLightbox(src) {
+  if (!src) return;
+  document.getElementById("lightbox-img").src = src;
+  document.getElementById("lightbox-backdrop").classList.remove("hidden");
 }
 
-/* ---- Admin direct edit (bypasses request queue — admin is the authority) ---- */
-function showAdminDirectEdit(r) {
-  const extra = document.getElementById("modal-extra");
-  const componentsHtml = (r.components || []).map((c, i) => `
-    <div class="component-block">
-      <div class="component-title">${escapeHtml(c.title)}</div>
-      <label class="form-label">Ingredients (one per line)</label>
-      <textarea class="field" id="ae-ing-${i}" rows="4">${escapeHtml((c.ingredients || []).join("\n"))}</textarea>
-      <label class="form-label">Method (one step per line)</label>
-      <textarea class="field" id="ae-method-${i}" rows="4">${escapeHtml((c.method || []).join("\n"))}</textarea>
-      <label class="form-label">
-        <input type="checkbox" id="ae-draft-${i}" ${c.draft ? "checked" : ""}> Still a draft (needs chef confirmation)
-      </label>
-    </div>
-  `).join("");
+/* ---- Unified recipe editor (used by admin for direct edits and by kitchen staff to propose changes) ---- */
 
-  extra.innerHTML = `
-    <div class="component-block">
-      <div class="component-title">Edit directly</div>
-      <label class="form-label">Prep time</label>
-      <input class="field" id="ae-prep" value="${escapeHtml(r.prepTime)}">
-      <label class="form-label">Cook time</label>
-      <input class="field" id="ae-cook" value="${escapeHtml(r.cookTime)}">
-      <label class="form-label">Yield</label>
-      <input class="field" id="ae-yield" value="${escapeHtml(r.yield)}">
-      <label class="form-label">Chef notes</label>
-      <textarea class="field" id="ae-notes" rows="2">${escapeHtml(r.chefNotes)}</textarea>
-      <label class="form-label">Plating notes</label>
-      <textarea class="field" id="ae-plating" rows="2">${escapeHtml(r.platingNotes)}</textarea>
-      <label class="form-label">Allergens (comma separated)</label>
-      <input class="field" id="ae-allergens" value="${(r.allergens || []).join(", ")}">
-      <label class="form-label">Image path (e.g. images/dish-name.jpg)</label>
-      <input class="field" id="ae-image" value="${escapeHtml(r.image)}">
-    </div>
-    ${componentsHtml}
-    <div class="component-block">
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-ghost btn-sm" id="ae-cancel">Cancel</button>
-        <button class="btn btn-gold btn-sm" id="ae-save">Save (admin)</button>
-      </div>
-    </div>
-  `;
-  document.getElementById("ae-cancel").addEventListener("click", () => { extra.innerHTML = ""; });
-  document.getElementById("ae-save").addEventListener("click", async () => {
-    const components = (r.components || []).map((c, i) => ({
-      ...c,
-      ingredients: document.getElementById(`ae-ing-${i}`).value.split("\n").map((s) => s.trim()).filter(Boolean),
-      method: document.getElementById(`ae-method-${i}`).value.split("\n").map((s) => s.trim()).filter(Boolean),
-      draft: document.getElementById(`ae-draft-${i}`).checked,
-    }));
-    const patch = {
-      prepTime: document.getElementById("ae-prep").value.trim(),
-      cookTime: document.getElementById("ae-cook").value.trim(),
-      yield: document.getElementById("ae-yield").value.trim(),
-      chefNotes: document.getElementById("ae-notes").value.trim(),
-      platingNotes: document.getElementById("ae-plating").value.trim(),
-      allergens: document.getElementById("ae-allergens").value.split(",").map((s) => s.trim()).filter(Boolean),
-      allergensSource: "kitchen-confirmed",
-      image: document.getElementById("ae-image").value.trim(),
-      components,
+function fileToResizedDataUrl(file, maxW, quality) {
+  maxW = maxW || 900; quality = quality || 0.72;
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale) || 1;
+        const h = Math.round(img.height * scale) || 1;
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
     };
-    await applyRecipeChange(r, patch, `Direct edit by admin ${state.name}`, state.name, state.name);
-    extra.innerHTML = "";
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
+}
+
+/* ---- Recipe-parts editor (shared by the recipe editor and the new-dish form) ---- */
+function renderPartsEditor(containerId, components) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = "";
+  const list = components && components.length ? components : [{ title: "", ingredients: [], method: [], draft: true }];
+  list.forEach((c) => wrap.appendChild(partBlockEl(containerId, c)));
+}
+function partBlockEl(containerId, c) {
+  const div = document.createElement("div");
+  div.className = "editor-part";
+  div.innerHTML = `
+    <div class="editor-part-head">
+      <input class="field" placeholder="Part name (e.g. Sauce, Assembly)" value="${escapeHtml(c.title || "")}" data-role="title">
+      <button type="button" class="editor-remove-part" data-role="remove">✕ Remove</button>
+    </div>
+    <label class="form-label">Ingredients (one per line)</label>
+    <textarea class="field" rows="4" data-role="ingredients">${escapeHtml((c.ingredients || []).join("\n"))}</textarea>
+    <label class="form-label">Method (one step per line)</label>
+    <textarea class="field" rows="4" data-role="method">${escapeHtml((c.method || []).join("\n"))}</textarea>
+    <label class="editor-draft-toggle"><input type="checkbox" data-role="draft" ${c.draft ? "checked" : ""}> Still a draft — needs chef confirmation</label>
+  `;
+  div.querySelector('[data-role="remove"]').addEventListener("click", () => {
+    const wrap = document.getElementById(containerId);
+    if (wrap.children.length <= 1) { alert("A recipe needs at least one part."); return; }
+    div.remove();
+  });
+  return div;
+}
+function addEmptyPart(containerId) {
+  document.getElementById(containerId).appendChild(partBlockEl(containerId, { title: "", ingredients: [], method: [], draft: true }));
+}
+function readPartsFromEditor(containerId) {
+  return [...document.querySelectorAll(`#${containerId} .editor-part`)].map((div) => ({
+    title: div.querySelector('[data-role="title"]').value.trim() || "Untitled part",
+    ingredients: div.querySelector('[data-role="ingredients"]').value.split("\n").map((s) => s.trim()).filter(Boolean),
+    method: div.querySelector('[data-role="method"]').value.split("\n").map((s) => s.trim()).filter(Boolean),
+    draft: div.querySelector('[data-role="draft"]').checked,
+  }));
+}
+
+function showRecipeEditForm(r) {
+  const extra = document.getElementById("modal-extra");
+  const isAdmin = state.role === "admin";
+  state.pendingImageDataUrl = null;
+  state.editFormOpen = true;
+  extra.innerHTML = `
+    <div class="component-block">
+      <div class="component-title">${isAdmin ? "Edit recipe" : "Propose changes to this recipe"}</div>
+      ${!isAdmin ? `<div class="hint-text" style="margin-top:0;">Make your changes below, then send them to the admin for approval. Nothing goes live until it's approved.</div>` : ""}
+
+      <label class="form-label">Dish name</label>
+      <input class="field" id="ef-name" value="${escapeHtml(r.nameEn)}">
+
+      <label class="form-label">Category</label>
+      <select class="field" id="ef-category">
+        ${state.categories.map((c) => `<option value="${c.id}" ${c.id === r.category ? "selected" : ""}>${escapeHtml(c.label)}</option>`).join("")}
+      </select>
+
+      <label class="form-label">Price (AED)</label>
+      <input class="field" id="ef-price" type="number" step="0.01" value="${r.price != null ? r.price : ""}">
+
+      <label class="form-label">Photo</label>
+      <div class="img-upload-row">
+        ${r.image ? `<img class="img-upload-preview" id="ef-image-preview" src="${r.image}">` : `<div class="img-upload-preview-fallback" id="ef-image-preview"></div>`}
+        <input type="file" accept="image/*" id="ef-image-file">
+      </div>
+      <input class="field" id="ef-image-url" placeholder="or paste an image URL" value="${r.image && r.image.startsWith("data:") ? "" : escapeHtml(r.image || "")}">
+
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+          <label class="form-label">Prep time</label>
+          <input class="field" id="ef-prep" value="${escapeHtml(r.prepTime)}">
+        </div>
+        <div style="flex:1;">
+          <label class="form-label">Cook time</label>
+          <input class="field" id="ef-cook" value="${escapeHtml(r.cookTime)}">
+        </div>
+        <div style="flex:1;">
+          <label class="form-label">Yield</label>
+          <input class="field" id="ef-yield" value="${escapeHtml(r.yield)}">
+        </div>
+      </div>
+
+      <label class="form-label">Allergens (comma separated, e.g. D, G, N)</label>
+      <input class="field" id="ef-allergens" value="${(r.allergens || []).join(", ")}">
+
+      <label class="form-label">Chef notes</label>
+      <textarea class="field" id="ef-notes" rows="2">${escapeHtml(r.chefNotes)}</textarea>
+
+      <label class="form-label">Plating notes</label>
+      <textarea class="field" id="ef-plating" rows="2">${escapeHtml(r.platingNotes)}</textarea>
+
+      <label class="form-label" style="margin-top:14px;">Recipe parts</label>
+      <div id="ef-parts"></div>
+      <button class="btn btn-ghost btn-sm" id="ef-add-part" type="button">+ Add another part</button>
+
+      <label class="form-label" style="margin-top:16px;">${isAdmin ? "Note (optional, kept in version history)" : "Why is this change needed?"}</label>
+      <textarea class="field" id="ef-reason" rows="2"></textarea>
+
+      <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" id="ef-cancel">Cancel</button>
+        <button class="btn btn-gold btn-sm" id="ef-save">${isAdmin ? "Save changes" : "Send for approval"}</button>
+        ${isAdmin ? `<button class="btn btn-danger btn-sm" id="ef-delete-dish" style="margin-left:auto;">🗑 Delete dish permanently</button>` : ""}
+      </div>
+      <div id="ef-confirm" class="hint-text hidden">Sent to the admin for approval.</div>
+    </div>
+  `;
+  renderPartsEditor("ef-parts", r.components || []);
+  document.getElementById("ef-add-part").addEventListener("click", () => addEmptyPart("ef-parts"));
+  document.getElementById("ef-image-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const dataUrl = await fileToResizedDataUrl(file);
+      state.pendingImageDataUrl = dataUrl;
+      let preview = document.getElementById("ef-image-preview");
+      if (preview.tagName !== "IMG") {
+        const img = document.createElement("img");
+        img.className = "img-upload-preview"; img.id = "ef-image-preview";
+        preview.replaceWith(img); preview = img;
+      }
+      preview.src = dataUrl;
+    } catch (err) {
+      alert("Couldn't read that image file.");
+    }
+  });
+  document.getElementById("ef-cancel").addEventListener("click", () => { extra.innerHTML = ""; state.editFormOpen = false; });
+  document.getElementById("ef-save").addEventListener("click", () => saveRecipeEdit(r));
+  if (isAdmin) document.getElementById("ef-delete-dish").addEventListener("click", () => deleteDish(r));
+}
+
+async function saveRecipeEdit(r) {
+  const priceVal = document.getElementById("ef-price").value;
+  const patch = {
+    nameEn: document.getElementById("ef-name").value.trim() || r.nameEn,
+    category: document.getElementById("ef-category").value,
+    price: priceVal === "" ? null : parseFloat(priceVal),
+    image: state.pendingImageDataUrl || document.getElementById("ef-image-url").value.trim() || r.image || "",
+    prepTime: document.getElementById("ef-prep").value.trim(),
+    cookTime: document.getElementById("ef-cook").value.trim(),
+    yield: document.getElementById("ef-yield").value.trim(),
+    allergens: document.getElementById("ef-allergens").value.split(",").map((s) => s.trim()).filter(Boolean),
+    allergensSource: "kitchen-confirmed",
+    chefNotes: document.getElementById("ef-notes").value.trim(),
+    platingNotes: document.getElementById("ef-plating").value.trim(),
+    components: readPartsFromEditor("ef-parts"),
+  };
+  const reason = document.getElementById("ef-reason").value.trim();
+
+  if (state.role === "admin") {
+    await applyRecipeChange(r, patch, reason || `Direct edit by admin ${state.name}`, state.name, state.name);
+    state.pendingImageDataUrl = null;
+    state.editFormOpen = false;
+    document.getElementById("modal-extra").innerHTML = "";
+  } else {
+    await db.collection("requests").add({
+      type: "full-edit",
+      recipeId: r.id, recipeName: r.nameEn,
+      requestedBy: state.name, patch, reason,
+      status: "pending", adminNote: "",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    state.pendingImageDataUrl = null;
+    document.getElementById("ef-save").disabled = true;
+    document.getElementById("ef-confirm").classList.remove("hidden");
+  }
+}
+
+async function deleteDish(r) {
+  if (!confirm(`Permanently delete "${r.nameEn}"? This cannot be undone — use Archive instead if you might want it back.`)) return;
+  await db.collection("recipes").doc(r.id).delete();
+  closeModal();
 }
 
 async function toggleArchive(r) {
@@ -822,6 +926,140 @@ async function applyRecipeChange(r, patch, summary, changedBy, approvedBy) {
     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     updatedBy: approvedBy || changedBy || "",
   });
+}
+
+/* ============================== Costing calculator ============================== */
+function costingFor(r) {
+  if (r.costing && r.costing.ingredients && r.costing.ingredients.length) return r.costing;
+  if (typeof COSTING_DATA !== "undefined" && COSTING_DATA[r.id]) {
+    return { ingredients: COSTING_DATA[r.id], targetCostPct: COSTING_TARGET_PCT, multiplier: COSTING_MULTIPLIER };
+  }
+  return { ingredients: [], targetCostPct: (typeof COSTING_TARGET_PCT !== "undefined" ? COSTING_TARGET_PCT : 0.28), multiplier: (typeof COSTING_MULTIPLIER !== "undefined" ? COSTING_MULTIPLIER : 1.1136) };
+}
+
+function openCosting(recipeId) {
+  state.costingRecipeId = recipeId;
+  renderCostingModal();
+  document.getElementById("costing-backdrop").classList.remove("hidden");
+}
+function closeCosting() {
+  state.costingRecipeId = null;
+  document.getElementById("costing-backdrop").classList.add("hidden");
+}
+
+function renderCostingModal() {
+  const r = state.recipes.find((x) => x.id === state.costingRecipeId);
+  const wrap = document.getElementById("costing-card");
+  if (!r) { wrap.innerHTML = ""; return; }
+  const costing = costingFor(r);
+
+  wrap.innerHTML = `
+    <button class="modal-close" id="costing-close-btn">✕</button>
+    <div class="modal-body">
+      <div class="modal-title">Costing — ${escapeHtml(r.nameEn)}</div>
+      <div class="hint-text" style="margin-top:2px;">Ingredient cost, quantity and unit — totals and suggested pricing recalculate automatically as you type.</div>
+
+      <table class="costing-table" style="margin-top:14px;">
+        <thead><tr>
+          <th class="col-desc">Ingredient</th><th class="col-num">Qty</th><th class="col-num">Unit</th>
+          <th class="col-num">Cost / unit (AED)</th><th class="col-total">Line total</th><th></th>
+        </tr></thead>
+        <tbody id="costing-rows"></tbody>
+      </table>
+      <button class="btn btn-ghost btn-sm" id="costing-add-row" type="button" style="margin-top:10px;">+ Add ingredient</button>
+
+      <div class="costing-summary">
+        <div class="costing-summary-box">
+          <div class="costing-summary-label">Total ingredient cost</div>
+          <div class="costing-summary-value" id="costing-total">AED 0.00</div>
+        </div>
+        <div class="costing-summary-box">
+          <div class="costing-summary-label">Current menu price</div>
+          <div class="costing-summary-value">${r.price != null ? "AED " + r.price : "not set"}</div>
+        </div>
+        <div class="costing-summary-box">
+          <div class="costing-summary-label">Target food cost %</div>
+          <input class="field" id="costing-target-pct" style="margin-top:4px;" value="${(costing.targetCostPct * 100).toFixed(2)}">
+        </div>
+        <div class="costing-summary-box">
+          <div class="costing-summary-label">Price multiplier (tax/service incl.)</div>
+          <input class="field" id="costing-multiplier" style="margin-top:4px;" value="${costing.multiplier.toFixed(4)}">
+        </div>
+        <div class="costing-summary-box">
+          <div class="costing-summary-label">Suggested net revenue</div>
+          <div class="costing-summary-value" id="costing-net">—</div>
+        </div>
+        <div class="costing-summary-box">
+          <div class="costing-summary-label">Suggested menu price</div>
+          <div class="costing-summary-value" id="costing-suggested">—</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-gold btn-sm" id="costing-save-btn">Save costing</button>
+      </div>
+      <div id="costing-confirm" class="hint-text hidden">Saved.</div>
+    </div>
+  `;
+  const tbody = document.getElementById("costing-rows");
+  (costing.ingredients.length ? costing.ingredients : [{ desc: "", qty: "", unit: "gm", unitCost: "" }]).forEach((ing) => tbody.appendChild(costingRowEl(ing)));
+  document.getElementById("costing-close-btn").addEventListener("click", closeCosting);
+  document.getElementById("costing-add-row").addEventListener("click", () => {
+    tbody.appendChild(costingRowEl({ desc: "", qty: "", unit: "gm", unitCost: "" }));
+    recalcCosting();
+  });
+  document.getElementById("costing-target-pct").addEventListener("input", recalcCosting);
+  document.getElementById("costing-multiplier").addEventListener("input", recalcCosting);
+  document.getElementById("costing-save-btn").addEventListener("click", () => saveCosting(r));
+  recalcCosting();
+}
+
+function costingRowEl(ing) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input class="field" data-role="desc" value="${escapeHtml(ing.desc || "")}"></td>
+    <td><input class="field" data-role="qty" type="number" step="any" value="${ing.qty !== "" && ing.qty != null ? ing.qty : ""}"></td>
+    <td><input class="field" data-role="unit" value="${escapeHtml(ing.unit || "")}"></td>
+    <td><input class="field" data-role="unitCost" type="number" step="any" value="${ing.unitCost !== "" && ing.unitCost != null ? ing.unitCost : ""}"></td>
+    <td class="col-total" data-role="lineTotal">0.0000</td>
+    <td><button class="costing-remove-ing" type="button" data-role="remove">✕</button></td>
+  `;
+  tr.querySelectorAll("input").forEach((inp) => inp.addEventListener("input", recalcCosting));
+  tr.querySelector('[data-role="remove"]').addEventListener("click", () => { tr.remove(); recalcCosting(); });
+  return tr;
+}
+
+function recalcCosting() {
+  let total = 0;
+  document.querySelectorAll("#costing-rows tr").forEach((tr) => {
+    const qty = parseFloat(tr.querySelector('[data-role="qty"]').value) || 0;
+    const unitCost = parseFloat(tr.querySelector('[data-role="unitCost"]').value) || 0;
+    const lineTotal = qty * unitCost;
+    tr.querySelector('[data-role="lineTotal"]').textContent = lineTotal.toFixed(4);
+    total += lineTotal;
+  });
+  document.getElementById("costing-total").textContent = "AED " + total.toFixed(2);
+  const targetPct = (parseFloat(document.getElementById("costing-target-pct").value) || 28) / 100;
+  const multiplier = parseFloat(document.getElementById("costing-multiplier").value) || 1;
+  const net = targetPct > 0 ? total / targetPct : 0;
+  const suggested = net * multiplier;
+  document.getElementById("costing-net").textContent = "AED " + net.toFixed(2);
+  document.getElementById("costing-suggested").textContent = "AED " + suggested.toFixed(2);
+}
+
+async function saveCosting(r) {
+  const ingredients = [...document.querySelectorAll("#costing-rows tr")].map((tr) => ({
+    desc: tr.querySelector('[data-role="desc"]').value.trim(),
+    qty: parseFloat(tr.querySelector('[data-role="qty"]').value) || 0,
+    unit: tr.querySelector('[data-role="unit"]').value.trim(),
+    unitCost: parseFloat(tr.querySelector('[data-role="unitCost"]').value) || 0,
+  })).filter((i) => i.desc);
+  const targetCostPct = (parseFloat(document.getElementById("costing-target-pct").value) || 28) / 100;
+  const multiplier = parseFloat(document.getElementById("costing-multiplier").value) || 1;
+  await db.collection("recipes").doc(r.id).update({
+    costing: { ingredients, targetCostPct, multiplier },
+  });
+  document.getElementById("costing-confirm").classList.remove("hidden");
 }
 
 /* ---- Version history ---- */
@@ -875,11 +1113,13 @@ function printRecipe(r) {
 function openAdmin(tab) {
   state.adminOpen = true;
   state.adminTab = tab === "mine" ? "mine" : "requests";
+  state.newRecipeFormOpen = false;
   document.getElementById("drawer-backdrop").classList.remove("hidden");
   renderAdmin();
 }
 function closeAdmin() {
   state.adminOpen = false;
+  state.newRecipeFormOpen = false;
   document.getElementById("drawer-backdrop").classList.add("hidden");
 }
 
@@ -906,28 +1146,63 @@ function renderAdmin() {
     <div id="admin-tab-body">${bodyHtml}</div>
   `;
   document.querySelectorAll("#drawer-content .tab-btn").forEach((b) =>
-    b.addEventListener("click", () => { state.adminTab = b.dataset.tab; renderAdmin(); })
+    b.addEventListener("click", () => { state.adminTab = b.dataset.tab; state.newRecipeFormOpen = false; renderAdmin(); })
   );
   wireAdminTabEvents();
+}
+
+function diffPatchHtml(r, patch) {
+  const labels = { nameEn: "Name", category: "Category", price: "Price (AED)", image: "Photo", prepTime: "Prep time", cookTime: "Cook time", yield: "Yield", allergens: "Allergens", chefNotes: "Chef notes", platingNotes: "Plating notes", components: "Recipe parts" };
+  let rows = "";
+  Object.keys(patch).forEach((k) => {
+    if (k === "allergensSource") return;
+    let oldV, newV;
+    if (k === "allergens") { oldV = (r.allergens || []).join(", "); newV = (patch.allergens || []).join(", "); }
+    else if (k === "components") { oldV = `${(r.components || []).length} part(s)`; newV = `${(patch.components || []).length} part(s)`; }
+    else if (k === "image") { oldV = r.image ? "has photo" : "no photo"; newV = patch.image ? "new photo" : "no photo"; }
+    else { oldV = r[k] != null ? r[k] : ""; newV = patch[k] != null ? patch[k] : ""; }
+    if (String(oldV) === String(newV)) return;
+    rows += `<div class="diff-row"><b>${labels[k] || k}:</b><br><span class="diff-old">${escapeHtml(String(oldV)).slice(0, 150)}</span><br><span class="diff-new">${escapeHtml(String(newV)).slice(0, 150)}</span></div>`;
+  });
+  return rows || `<div class="hint-text">No summary-level differences detected (changes may be within ingredient/method text — open the dish to compare in full).</div>`;
 }
 
 function renderPendingRequests() {
   const pending = state.requests.filter((r) => r.status === "pending");
   if (pending.length === 0) return `<div class="hint-text">No pending requests right now.</div>`;
-  return pending.map((req) => `
-    <div class="req-card" data-req="${req.id}">
-      <div class="req-title">${escapeHtml(req.recipeName)}</div>
-      <div class="req-meta">${escapeHtml(req.fieldLabel || req.field)} · requested by ${escapeHtml(req.requestedBy)}</div>
-      <div class="diff-row"><span class="diff-old">${escapeHtml(String(req.oldValue).slice(0, 200))}</span></div>
-      <div class="diff-row"><span class="diff-new">${escapeHtml(String(req.newValue).slice(0, 200))}</span></div>
-      ${req.reason ? `<div class="req-meta" style="margin-top:6px;">Reason: “${escapeHtml(req.reason)}”</div>` : ""}
-      <div class="req-actions">
-        <button class="btn btn-gold btn-sm" data-approve="${req.id}">✓ Approve</button>
-        <button class="btn btn-ghost btn-sm" data-clarify="${req.id}">? Ask for clarification</button>
-        <button class="btn btn-danger btn-sm" data-reject="${req.id}">✕ Reject</button>
+  return pending.map((req) => {
+    if (req.type === "full-edit") {
+      const r = state.recipes.find((x) => x.id === req.recipeId);
+      return `
+        <div class="req-card" data-req="${req.id}">
+          <div class="req-title">${escapeHtml(req.recipeName)}</div>
+          <div class="req-meta">Full recipe edit · requested by ${escapeHtml(req.requestedBy)}</div>
+          ${r ? diffPatchHtml(r, req.patch) : `<div class="hint-text">This dish no longer exists.</div>`}
+          ${req.reason ? `<div class="req-meta" style="margin-top:6px;">Reason: "${escapeHtml(req.reason)}"</div>` : ""}
+          <div class="req-actions">
+            ${r ? `<button class="btn btn-outline btn-sm" data-open-dish="${r.id}">Open dish to compare</button>` : ""}
+            <button class="btn btn-gold btn-sm" data-approve-full="${req.id}">✓ Approve</button>
+            <button class="btn btn-ghost btn-sm" data-clarify="${req.id}">? Ask for clarification</button>
+            <button class="btn btn-danger btn-sm" data-reject="${req.id}">✕ Reject</button>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="req-card" data-req="${req.id}">
+        <div class="req-title">${escapeHtml(req.recipeName)}</div>
+        <div class="req-meta">${escapeHtml(req.fieldLabel || req.field)} · requested by ${escapeHtml(req.requestedBy)}</div>
+        <div class="diff-row"><span class="diff-old">${escapeHtml(String(req.oldValue).slice(0, 200))}</span></div>
+        <div class="diff-row"><span class="diff-new">${escapeHtml(String(req.newValue).slice(0, 200))}</span></div>
+        ${req.reason ? `<div class="req-meta" style="margin-top:6px;">Reason: "${escapeHtml(req.reason)}"</div>` : ""}
+        <div class="req-actions">
+          <button class="btn btn-gold btn-sm" data-approve="${req.id}">✓ Approve</button>
+          <button class="btn btn-ghost btn-sm" data-clarify="${req.id}">? Ask for clarification</button>
+          <button class="btn btn-danger btn-sm" data-reject="${req.id}">✕ Reject</button>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 function renderMyRequests() {
@@ -936,8 +1211,8 @@ function renderMyRequests() {
   return mine.map((req) => `
     <div class="req-card">
       <div class="req-title">${escapeHtml(req.recipeName)}</div>
-      <div class="req-meta">${escapeHtml(req.fieldLabel || req.field)} — status: <b>${req.status.replace("_", " ")}</b></div>
-      ${req.adminNote ? `<div class="req-meta" style="margin-top:6px;">Admin: “${escapeHtml(req.adminNote)}”</div>` : ""}
+      <div class="req-meta">${escapeHtml(req.type === "full-edit" ? "Full recipe edit" : (req.fieldLabel || req.field))} — status: <b>${req.status.replace("_", " ")}</b></div>
+      ${req.adminNote ? `<div class="req-meta" style="margin-top:6px;">Admin: "${escapeHtml(req.adminNote)}"</div>` : ""}
     </div>
   `).join("");
 }
@@ -952,9 +1227,11 @@ function renderRecipeAdmin() {
     ${active.map((r) => `
       <div class="list-card">
         <div class="req-title">${escapeHtml(r.nameEn)}</div>
-        <div class="req-meta">${escapeHtml(r.category)} · v${r.version || 1}</div>
+        <div class="req-meta">${escapeHtml(r.category)} · v${r.version || 1}${r.price != null ? ` · AED ${r.price}` : ""}</div>
         <div class="req-actions">
+          <button class="btn btn-outline btn-sm" data-open-dish="${r.id}">Open</button>
           <button class="btn btn-danger btn-sm" data-archive="${r.id}">Archive</button>
+          <button class="btn btn-danger btn-sm" data-delete-recipe="${r.id}">🗑 Delete permanently</button>
         </div>
       </div>
     `).join("")}
@@ -965,6 +1242,7 @@ function renderRecipeAdmin() {
         <div class="req-meta">${escapeHtml(r.category)}</div>
         <div class="req-actions">
           <button class="btn btn-outline btn-sm" data-restore="${r.id}">Restore</button>
+          <button class="btn btn-danger btn-sm" data-delete-recipe="${r.id}">🗑 Delete permanently</button>
         </div>
       </div>
     `).join("")}
@@ -995,6 +1273,7 @@ function renderSettingsAdmin() {
 
 function wireAdminTabEvents() {
   document.querySelectorAll("[data-approve]").forEach((b) => b.addEventListener("click", () => resolveRequest(b.dataset.approve, "approved")));
+  document.querySelectorAll("[data-approve-full]").forEach((b) => b.addEventListener("click", () => resolveFullEditRequest(b.dataset.approveFull)));
   document.querySelectorAll("[data-reject]").forEach((b) => b.addEventListener("click", () => resolveRequest(b.dataset.reject, "rejected")));
   document.querySelectorAll("[data-clarify]").forEach((b) => b.addEventListener("click", () => resolveRequest(b.dataset.clarify, "clarification_requested")));
   document.querySelectorAll("[data-archive]").forEach((b) => b.addEventListener("click", () => {
@@ -1004,6 +1283,16 @@ function wireAdminTabEvents() {
   document.querySelectorAll("[data-restore]").forEach((b) => b.addEventListener("click", () => {
     const r = state.recipes.find((x) => x.id === b.dataset.restore);
     if (r) applyRecipeChange(r, { archived: false }, "Restored by admin", state.name, state.name);
+  }));
+  document.querySelectorAll("[data-delete-recipe]").forEach((b) => b.addEventListener("click", async () => {
+    const r = state.recipes.find((x) => x.id === b.dataset.deleteRecipe);
+    if (!r) return;
+    if (!confirm(`Permanently delete "${r.nameEn}"? This cannot be undone.`)) return;
+    await db.collection("recipes").doc(r.id).delete();
+  }));
+  document.querySelectorAll("[data-open-dish]").forEach((b) => b.addEventListener("click", () => {
+    closeAdmin();
+    openModal(b.dataset.openDish);
   }));
 
   const newRecipeBtn = document.getElementById("new-recipe-btn");
@@ -1030,28 +1319,53 @@ function wireAdminTabEvents() {
 
 function showNewRecipeForm() {
   const wrap = document.getElementById("new-recipe-form");
+  state.newRecipeFormOpen = true;
   wrap.innerHTML = `
-    <input class="field" id="nr-name" placeholder="Dish name">
-    <select class="field" id="nr-cat">${state.categories.map((c) => `<option value="${c.id}">${c.label}</option>`).join("")}</select>
-    <textarea class="field" id="nr-ingredients" rows="4" placeholder="Ingredients, one per line"></textarea>
-    <textarea class="field" id="nr-method" rows="4" placeholder="Method steps, one per line"></textarea>
-    <button class="btn btn-gold btn-sm" id="nr-save">Create recipe</button>
+    <div class="editor-part">
+      <button type="button" class="modal-close" style="position:static; float:right;" id="nr-close">✕</button>
+      <label class="form-label">Dish name</label>
+      <input class="field" id="nr-name" placeholder="Dish name">
+      <label class="form-label">Category</label>
+      <select class="field" id="nr-cat">${state.categories.map((c) => `<option value="${c.id}">${escapeHtml(c.label)}</option>`).join("")}</select>
+      <label class="form-label">Price (AED)</label>
+      <input class="field" id="nr-price" type="number" step="0.01">
+      <label class="form-label">Recipe parts</label>
+      <div id="nr-parts"></div>
+      <button class="btn btn-ghost btn-sm" id="nr-add-part" type="button">+ Add another part</button>
+      <button class="btn btn-gold btn-sm" id="nr-save" style="margin-top:12px;">Create recipe</button>
+    </div>
   `;
+  renderPartsEditor("nr-parts", [{ title: "Recipe", ingredients: [], method: [], draft: true }]);
+  document.getElementById("nr-close").addEventListener("click", () => { wrap.innerHTML = ""; state.newRecipeFormOpen = false; });
+  document.getElementById("nr-add-part").addEventListener("click", () => addEmptyPart("nr-parts"));
   document.getElementById("nr-save").addEventListener("click", async () => {
     const name = document.getElementById("nr-name").value.trim();
     if (!name) return;
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") + "-" + Date.now().toString(36);
-    const ingredients = document.getElementById("nr-ingredients").value.split("\n").map((s) => s.trim()).filter(Boolean);
-    const method = document.getElementById("nr-method").value.split("\n").map((s) => s.trim()).filter(Boolean);
+    const priceVal = document.getElementById("nr-price").value;
     await db.collection("recipes").doc(id).set({
       id, category: document.getElementById("nr-cat").value, nameEn: name, nameAr: "",
-      image: "", prepTime: "", cookTime: "", yield: "", chefNotes: "", platingNotes: "",
-      allergens: [], allergensSource: "none", archived: false, version: 1,
-      components: [{ title: "Recipe", draft: true, ingredients, method }],
+      image: "", price: priceVal === "" ? null : parseFloat(priceVal),
+      prepTime: "", cookTime: "", yield: "", chefNotes: "", platingNotes: "",
+      allergens: [], allergensSource: "none", archived: false, version: 1, costing: null,
+      components: readPartsFromEditor("nr-parts"),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: state.name,
     });
     wrap.innerHTML = "";
+    state.newRecipeFormOpen = false;
     renderAdmin();
+  });
+}
+
+async function resolveFullEditRequest(reqId) {
+  const req = state.requests.find((r) => r.id === reqId);
+  if (!req) return;
+  const r = state.recipes.find((x) => x.id === req.recipeId);
+  if (r) {
+    await applyRecipeChange(r, req.patch, `Full edit approved — requested by ${req.requestedBy}`, req.requestedBy, state.name);
+  }
+  await db.collection("requests").doc(reqId).update({
+    status: "approved", resolvedBy: state.name, resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
   });
 }
 
@@ -1062,7 +1376,7 @@ async function resolveRequest(reqId, status) {
   if (status === "rejected" || status === "clarification_requested") {
     adminNote = prompt(status === "rejected" ? "Reason for rejecting (optional):" : "What clarification do you need?") || "";
   }
-  if (status === "approved") {
+  if (status === "approved" && req.type !== "full-edit") {
     const r = state.recipes.find((x) => x.id === req.recipeId);
     if (r) {
       const patch = buildPatchFromRequest(r, req);
@@ -1088,3 +1402,4 @@ function buildPatchFromRequest(r, req) {
   }
   return { [req.field]: req.newValue };
 }
+

@@ -87,8 +87,33 @@ style.css                all styling (light theme, mobile + print styles)
 app.js                   all app logic (Firestore reads/writes, rendering, workflow)
 firebase-config.js        your Firebase project config (already filled in)
 data/seed-data.js        starting recipe content (only used the very first time)
+data/costing-data.js     real ingredient-cost data imported from costing.xlsx
 images/                  dish photos extracted from the PPTX
 ```
+
+## Recent additions (latest update)
+
+- **Price per dish**, shown on list rows and in the detail view, editable by admin.
+- **Costing calculator** — a separate view (💰 Costing button, admin-only) per dish
+  with an editable ingredient/qty/unit-cost table that auto-calculates line totals,
+  total cost, and a suggested menu price (using an editable target food-cost % and
+  price multiplier). 17 dishes are pre-filled with real ingredient costs pulled from
+  `costing.xlsx`; the rest start empty for the kitchen to fill in.
+- **One unified recipe editor** for name, category (so dishes can be moved between
+  categories), price, photo (upload from your device — it's resized and stored
+  directly, no external image hosting needed), prep/cook/yield, allergens, notes,
+  and all recipe parts (add or remove sub-recipes freely). Admins hit "Save changes"
+  and it goes live immediately; kitchen staff see the exact same form but their
+  "Send for approval" creates a pending request instead — nothing changes until an
+  admin approves it.
+- **One-click draft/verified toggle** for admins on whichever recipe part is open.
+- **List rows now show a thumbnail and allergen pills instead of the Arabic name**
+  (Arabic name is still shown on the full recipe page). Clicking a dish's photo in
+  the detail view opens it full-size.
+- **Delete permanently** (admin) — for a whole dish (Admin → Recipes, or from within
+  the editor) or for a single recipe part (remove button inside the editor). This is
+  separate from Archive, which is recoverable.
+- Fixed a bug where the **Print** button produced a blank page.
 
 ## How the content was sourced
 
@@ -118,6 +143,21 @@ images/                  dish photos extracted from the PPTX
    history," showing who requested it, who approved it, and when.
 4. Admins also have an "Edit directly" option that skips the queue (they're the
    approval authority already) — still logged the same way in version history.
+
+## Good to know
+
+- **Photos are stored directly in Firestore** as compressed JPEGs (resized to
+  ~900px wide client-side before upload), not on separate file storage — simplest
+  option with no extra setup, but keep an eye on it if you're uploading a lot of
+  very large originals repeatedly, since each edited version's history snapshot
+  keeps a copy of the photo at that point in time.
+- **Costing is admin-only** for now (the 💰 button only shows for admins) since
+  ingredient costs and margins are commercially sensitive — say the word if you'd
+  like kitchen staff to see costing too.
+- **Pending "full recipe edit" requests** show a summary of which fields changed;
+  for a full side-by-side on ingredient/method wording specifically, use the
+  "Open dish to compare" button next to the request to view the current live
+  version alongside what's being proposed.
 
 ## Other features
 
