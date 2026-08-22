@@ -126,6 +126,24 @@ images/                  dish photos extracted from the PPTX
   what's already there and only adds what's missing, every time it loads, without
   touching anything you've already edited.
 
+## Recent additions (this update)
+
+- **Every ingredient cost cross-checked against your latest supplier price list**
+  (`PRICE_LIST_UPDATED_AS_OF_22_08_26.xlsx`, covering LPOs from 30 May – 22 Aug 2026).
+  211 ingredient lines across all 52 sellable dishes were updated to the real
+  current supplier price wherever that ingredient appears on the list (proteins,
+  dairy, oils, produce, pasta, nuts, bread, cheese, etc.) — some moved substantially:
+  olive oil, for instance, was previously estimated far too cheap, and shrimp/salmon
+  were previously estimated too expensive. Ingredients not on this particular list
+  (made-in-house sauces, specific spices, a handful of specialty items) were left at
+  their prior estimate since there was nothing more accurate to cross-check against.
+  One clearly anomalous price-list entry (a frozen falafel line priced in a way that
+  would have made a shared platter's food cost implausibly high) was caught and
+  corrected rather than applied blindly — flagging this so you know the update
+  wasn't purely mechanical.
+- Every dish's cost-to-price ratio was sanity-checked after the update; all 52 now
+  fall in a realistic 1.6%–34% food-cost range.
+
 ## Earlier additions
 
 - **Price per dish**, shown on list rows and in the detail view, editable by admin.
