@@ -23,14 +23,18 @@
 
 const CATEGORIES = [
   { id: "soup", label: "Soups", order: 1 },
-  { id: "salads", label: "Salads", order: 2 },
-  { id: "mezze", label: "Mezze & Local Favorites", order: 3 },
-  { id: "snacks", label: "Snacks", order: 4 },
-  { id: "pastas", label: "Pastas", order: 5 },
-  { id: "sandwiches", label: "Burger & Sandwiches", order: 6 },
-  { id: "mains", label: "Main Course", order: 7 },
-  { id: "sauces", label: "Sauces & Bases", order: 8 },
-  { id: "breakfast", label: "Breakfast Prep", order: 9 },
+  { id: "charcuterie", label: "Charcutería & Cheese Boards", order: 2 },
+  { id: "salads", label: "Salads", order: 3 },
+  { id: "mezze", label: "Mezze & Local Favorites", order: 4 },
+  { id: "snacks", label: "Snacks", order: 5 },
+  { id: "pastas", label: "Pastas", order: 6 },
+  { id: "sandwiches", label: "Burger & Sandwiches", order: 7 },
+  { id: "mains", label: "Main Course", order: 8 },
+  { id: "sides", label: "Side Dishes", order: 9 },
+  { id: "sweets", label: "Sweets", order: 10 },
+  { id: "icecream", label: "Ice Cream & Sorbet", order: 11 },
+  { id: "sauces", label: "Sauces & Bases", order: 12 },
+  { id: "breakfast", label: "Breakfast Prep", order: 13 },
 ];
 
 // Small helper so every recipe object has the same shape.
@@ -38,6 +42,7 @@ function R(r) {
   return {
     subcategory: "",
     image: "",
+    price: null,
     prepTime: "",
     cookTime: "",
     yield: "",
@@ -46,6 +51,7 @@ function R(r) {
     allergens: [],
     allergensSource: "none", // 'none' | 'unverified-menu' | 'kitchen-confirmed'
     archived: false,
+    costing: null,
     ...r,
   };
 }
@@ -54,6 +60,7 @@ const SEED_RECIPES = [
   /* ------------------------------- SOUPS ------------------------------- */
   R({
     id: "lentil-soup",
+    price: 50,
     category: "soup",
     nameEn: "Lentil Soup",
     nameAr: "شوربة العدس",
@@ -86,6 +93,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "chicken-soup",
+    price: 50,
     category: "soup",
     nameEn: "Chicken Soup",
     nameAr: "شوربة الدجاج",
@@ -106,6 +114,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "mushroom-soup",
+    price: 50,
     category: "soup",
     nameEn: "Wild Forest Mushroom Soup",
     nameAr: "شوربة فطر",
@@ -135,6 +144,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "tomato-soup",
+    price: 50,
     category: "soup",
     nameEn: "Tomato Soup",
     nameAr: "الطماطم",
@@ -166,9 +176,64 @@ const SEED_RECIPES = [
     ],
   }),
 
+  /* ------------------------- CHARCUTERÍA & CHEESE BOARDS ------------------------- */
+  R({
+    id: "charc-board",
+    category: "charcuterie",
+    price: 75,
+    nameEn: "Charcutería Board",
+    nameAr: "لوح من اللحوم الباردة",
+    image: "images/charc-board.jpg",
+    platingNotes: "Available for wine pairing — Red: Masia J Merlot · White: Masia J Sauvignon Blanc (AED 50/glass · AED 200/bottle).",
+    allergens: ["D", "G"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Board assembly",
+        draft: true,
+        ingredients: [
+          "Mixed Spanish León cured beef, sliced - 60g", "Manchego-style cheese - 40g",
+          "Quince jelly - 20g", "Marinated olives - 15g", "Grapes - 40g", "Crackers or flatbread - 30g",
+        ],
+        method: [
+          "Arrange the sliced cured beef in loose folds across one side of the board.",
+          "Place the cheese wedge and quince jelly alongside.",
+          "Fill remaining space with olives and grapes.",
+          "Serve with crackers or flatbread on the side.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "cheese-board",
+    category: "charcuterie",
+    price: 75,
+    nameEn: "Cheese Board",
+    nameAr: "لوح الجبن",
+    image: "images/cheese-board.jpg",
+    allergens: ["D", "G", "N"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Board assembly",
+        draft: true,
+        ingredients: [
+          "Artisan cheese selection (soft, aged, blue) - 120g", "Quince jelly - 20g",
+          "Mixed nuts - 20g", "Grapes - 40g", "Olives - 15g", "Crackers or flatbread - 30g",
+        ],
+        method: [
+          "Arrange the cheeses across the board, softest to firmest.",
+          "Add quince jelly, nuts, grapes and olives around the cheese.",
+          "Serve with crackers or flatbread.",
+        ],
+      },
+    ],
+  }),
+
   /* ------------------------------- SALADS ------------------------------- */
   R({
     id: "nicoise",
+    price: 75,
     category: "salads",
     nameEn: "Nicoise",
     nameAr: "سلطه النيسواز",
@@ -214,6 +279,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "caesar-salad",
+    price: 55,
     category: "salads",
     nameEn: "Void Caesar",
     nameAr: "فويد سيزار",
@@ -256,6 +322,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "eat-your-greens",
+    price: 55,
     category: "salads",
     nameEn: "Eat Your Greens",
     nameAr: "سلطة الخضروات",
@@ -292,6 +359,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "panzanella",
+    price: 45,
     category: "salads",
     nameEn: "Panzanella",
     nameAr: "بانزانيلا",
@@ -333,6 +401,7 @@ const SEED_RECIPES = [
   /* --------------------------- MEZZE / LOCAL --------------------------- */
   R({
     id: "hummus",
+    price: 40,
     category: "mezze",
     nameEn: "Hummus",
     nameAr: "حمص",
@@ -369,6 +438,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "moutabel",
+    price: 40,
     category: "mezze",
     nameEn: "Moutabel",
     nameAr: "متبل",
@@ -389,6 +459,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "muhammara",
+    price: 40,
     category: "mezze",
     nameEn: "Muhammara",
     nameAr: "محمرة",
@@ -417,6 +488,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "fattoush",
+    price: 55,
     category: "mezze",
     nameEn: "Fattoush",
     nameAr: "فتوش",
@@ -448,6 +520,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "falafel",
+    price: 50,
     category: "mezze",
     nameEn: "Falafel",
     nameAr: "فلافل",
@@ -485,6 +558,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "hot-mezze-platter",
+    price: 55,
     category: "mezze",
     nameEn: "Hot Mezze Platter",
     nameAr: "طبق المقبلات الساخنة",
@@ -509,6 +583,7 @@ const SEED_RECIPES = [
   /* ------------------------------- SNACKS ------------------------------- */
   R({
     id: "guacamole",
+    price: 65,
     category: "snacks",
     nameEn: "Guacamole",
     nameAr: "جواكامولي",
@@ -529,6 +604,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "croquettes",
+    price: 35,
     category: "snacks",
     nameEn: "Croquettes",
     nameAr: "كروكيت",
@@ -568,6 +644,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "empanada",
+    price: 45,
     category: "snacks",
     nameEn: "Empanada",
     nameAr: "إمبانادا",
@@ -606,6 +683,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "bao-buns",
+    price: 55,
     category: "snacks",
     nameEn: "Bao Buns",
     nameAr: "كعك الباو",
@@ -641,6 +719,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "dakgangjeong",
+    price: 50,
     category: "snacks",
     nameEn: "Dakgangjeong",
     nameAr: "داكانج جونج",
@@ -681,6 +760,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "prawn-tempura",
+    price: 65,
     category: "snacks",
     nameEn: "Prawn Tempura",
     nameAr: "تمبورا الروبيان",
@@ -710,6 +790,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "calamari",
+    price: 50,
     category: "snacks",
     nameEn: "Calamari",
     nameAr: "كالاماري",
@@ -734,6 +815,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "edamame",
+    price: 35,
     category: "snacks",
     nameEn: "Edamame",
     nameAr: "اداماماي",
@@ -753,9 +835,34 @@ const SEED_RECIPES = [
     ],
   }),
 
+  R({
+    id: "padron",
+    category: "snacks",
+    price: 35,
+    nameEn: "Padrón",
+    nameAr: "بادرون",
+    image: "images/padron.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Padrón peppers",
+        draft: true,
+        ingredients: ["Padrón peppers - 100g", "Olive oil - 15ml", "Maldon salt, to finish"],
+        method: [
+          "Heat a splash of olive oil in a hot pan or plancha until almost smoking.",
+          "Add the whole peppers and blister on all sides, tossing frequently, 3-4 minutes.",
+          "Remove, drain excess oil, and finish with a generous scatter of Maldon salt.",
+          "Serve immediately while blistered and hot.",
+        ],
+      },
+    ],
+  }),
+
   /* ------------------------------- PASTAS ------------------------------- */
   R({
     id: "bolognese",
+    price: 110,
     category: "pastas",
     nameEn: "Bolognese",
     nameAr: "بولونيز",
@@ -798,6 +905,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "pesto-3ps",
+    price: 95,
     category: "pastas",
     nameEn: "3 P's (Pesto, Pine Nuts, Parmesan)",
     nameAr: "3 ب",
@@ -823,9 +931,39 @@ const SEED_RECIPES = [
     ],
   }),
 
+  R({
+    id: "del-mar",
+    category: "pastas",
+    price: 165,
+    nameEn: "Del Mar",
+    nameAr: "دي مار",
+    image: "images/del-mar.jpg",
+    allergens: ["D", "G", "S"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Seafood ragu & pasta",
+        draft: true,
+        ingredients: [
+          "Tagliatelle (or pasta of choice) - 120g", "Shrimp, peeled - 4-5 pc",
+          "Mussels, cleaned - 4-5 pc", "Clams, cleaned - 4-5 pc", "Scallop - 2-3 pc",
+          "Tomato sauce - 100g", "Garlic, sliced - 5g", "Olive oil - 15ml", "Fresh chives, to finish",
+        ],
+        method: [
+          "Sauté garlic in olive oil until fragrant.",
+          "Add mussels and clams with a splash of water, cover and steam until they open.",
+          "Add shrimp and scallop, cook briefly, then stir in the tomato sauce and simmer.",
+          "Toss with cooked pasta, adding pasta water to loosen if needed.",
+          "Plate with the shellfish arranged on top and finish with chives.",
+        ],
+      },
+    ],
+  }),
+
   /* --------------------------- BURGER & SANDWICHES --------------------------- */
   R({
     id: "thermidor",
+    price: 75,
     category: "sandwiches",
     nameEn: "Thermidor — Californian Creamy Shrimp Hotdog",
     nameAr: "ثيرميدور",
@@ -861,6 +999,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "bocadillo",
+    price: 70,
     category: "sandwiches",
     nameEn: "Bocadillo",
     nameAr: "بوكا ديلو",
@@ -886,6 +1025,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "mcme",
+    price: 95,
     category: "sandwiches",
     nameEn: "McME",
     nameAr: "ماك مي",
@@ -913,6 +1053,7 @@ const SEED_RECIPES = [
   /* ------------------------------- MAIN COURSE ------------------------------- */
   R({
     id: "cachopo",
+    price: 115,
     category: "mains",
     nameEn: "Cachopo",
     nameAr: "كاتشوبو",
@@ -940,6 +1081,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "beef-jus",
+    price: null,
     category: "sauces",
     nameEn: "Veal / Beef Jus",
     nameAr: "",
@@ -965,6 +1107,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "mashed-potato",
+    price: 30,
     category: "mains",
     nameEn: "Mashed Potato",
     nameAr: "بطاطس مهروسة",
@@ -988,6 +1131,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "la-mediterranea",
+    price: 145,
     category: "mains",
     nameEn: "La Mediterranea",
     nameAr: "لا ميديتيرانيا",
@@ -1021,6 +1165,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "nasi-goreng",
+    price: 180,
     category: "mains",
     nameEn: "Nasi Goreng",
     nameAr: "ناسي جورينج",
@@ -1059,9 +1204,421 @@ const SEED_RECIPES = [
     ],
   }),
 
+  R({
+    id: "pinchos-chicken",
+    category: "mains",
+    price: 110,
+    nameEn: "Pinchos Chicken",
+    nameAr: "بينشوس دجاج",
+    image: "images/pinchos-chicken.jpg",
+    allergens: ["D"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Chicken skewers",
+        draft: true,
+        ingredients: [
+          "Chicken thigh, cubed - 180g", "Marinade — oil, garlic, paprika, lemon",
+          "Garden salad mix - 60g", "Sliced onion - 20g", "Pickles - 20g",
+        ],
+        method: [
+          "Marinate the chicken cubes for at least 2 hours.",
+          "Thread onto skewers and grill over high heat, turning until charred and cooked through.",
+          "Plate with a garden salad, sliced onion and pickles alongside.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "pinchos-beef",
+    category: "mains",
+    price: 135,
+    nameEn: "Pinchos Beef",
+    nameAr: "بينشوس لحم بقري",
+    image: "images/pinchos-beef.jpg",
+    allergens: ["D"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Beef skewers",
+        draft: true,
+        ingredients: [
+          "Beef sirloin, cubed - 180g", "Marinade — oil, garlic, herbs",
+          "Garden salad mix - 60g", "Sliced onion - 20g", "Pickles - 20g",
+        ],
+        method: [
+          "Marinate the beef cubes briefly with oil, garlic and herbs.",
+          "Thread onto skewers and grill to the desired doneness, turning for even charring.",
+          "Rest briefly, then plate with garden salad, onion and pickles.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "pinchos-shrimp",
+    category: "mains",
+    price: 150,
+    nameEn: "Pinchos Shrimp",
+    nameAr: "بينشوس جمبري",
+    image: "images/pinchos-shrimp.jpg",
+    allergens: ["D", "S"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Shrimp skewers",
+        draft: true,
+        ingredients: [
+          "Shrimp, peeled & deveined - 180g", "Marinade — oil, garlic, chili, lemon",
+          "Garden salad mix - 60g", "Sliced onion - 20g", "Pickles - 20g",
+        ],
+        method: [
+          "Marinate the shrimp briefly.",
+          "Thread onto skewers and grill over high heat until just cooked through, about 1-2 minutes per side.",
+          "Plate with garden salad, onion and pickles alongside.",
+        ],
+      },
+    ],
+  }),
+
+  /* ------------------------------- SIDE DISHES ------------------------------- */
+  R({
+    id: "sauteed-vegetables",
+    category: "sides",
+    price: 30,
+    nameEn: "Sautéed Vegetables",
+    nameAr: "خضروات مقلية",
+    image: "images/sauteed-vegetables.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Sautéed vegetables",
+        draft: true,
+        ingredients: ["Asparagus - 40g", "Broccoli - 40g", "Carrot - 30g", "Green beans - 30g", "Butter or olive oil - 10g"],
+        method: [
+          "Blanch the vegetables briefly in salted boiling water.",
+          "Sauté in butter or olive oil over high heat until tender-crisp.",
+          "Season and serve immediately.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "mixed-side-salad",
+    category: "sides",
+    price: 30,
+    nameEn: "Mixed Side Salad",
+    nameAr: "سلطة مختلطة",
+    image: "images/mixed-side-salad.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Mixed salad",
+        draft: true,
+        ingredients: ["Mixed lettuce leaves - 80g", "Cherry tomato - 30g", "Asparagus - 20g", "Olive oil dressing - 15ml"],
+        method: [
+          "Toss the lettuce, tomato and asparagus together.",
+          "Dress lightly with olive oil vinaigrette just before serving.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "steamed-rice",
+    category: "sides",
+    price: 30,
+    nameEn: "Steamed Rice",
+    nameAr: "أرز مطهو على البخار",
+    image: "images/steamed-rice.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Steamed rice",
+        draft: true,
+        ingredients: ["Basmati rice - 180g", "Water or stock - 260ml", "Salt, a pinch"],
+        method: [
+          "Rinse the rice until the water runs clear.",
+          "Cook by absorption or steamer until tender and fluffy.",
+          "Fluff with a fork before serving.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "sweet-potato-fries",
+    category: "sides",
+    price: 30,
+    nameEn: "Sweet Potato Fries",
+    nameAr: "بطاطا حلوة مقلية",
+    image: "images/sweet-potato-fries.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Sweet potato fries",
+        draft: true,
+        ingredients: ["Sweet potato, cut into fries - 220g", "Frying oil", "Salt, to taste"],
+        method: [
+          "Cut sweet potato into even fries.",
+          "Deep fry at 170-180°C until golden and cooked through, about 4-5 minutes.",
+          "Drain, season with salt, and serve immediately.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "french-fries",
+    category: "sides",
+    price: 30,
+    nameEn: "French Fries",
+    nameAr: "بطاطس مقلية",
+    image: "images/french-fries.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "French fries",
+        draft: true,
+        ingredients: ["Potato, cut into fries - 220g", "Frying oil", "Salt, to taste"],
+        method: [
+          "Cut potatoes into even fries and rinse to remove excess starch.",
+          "Blanch-fry at 150°C until soft, then finish-fry at 180°C until golden and crisp.",
+          "Drain, season with salt, and serve immediately.",
+        ],
+      },
+    ],
+  }),
+
+  /* ------------------------------- SWEETS ------------------------------- */
+  R({
+    id: "umm-ali",
+    category: "sweets",
+    price: 45,
+    nameEn: "Umm Ali",
+    nameAr: "أم علي",
+    image: "images/umm-ali.jpg",
+    allergens: ["D", "G", "N", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Umm Ali",
+        draft: true,
+        ingredients: [
+          "Puff pastry, baked & torn - 60g", "Milk - 150ml", "Cream - 40ml", "Sugar - 20g",
+          "Mixed nuts & raisins - 20g", "Coconut flakes, to garnish",
+        ],
+        method: [
+          "Layer the torn puff pastry in an oven dish with nuts and raisins.",
+          "Warm the milk, cream and sugar together, then pour over the pastry.",
+          "Bake until bubbling and golden on top, then finish under the salamander for extra colour.",
+          "Garnish with toasted coconut and serve warm.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "kunafa",
+    category: "sweets",
+    price: 45,
+    nameEn: "Kunafa",
+    nameAr: "كنافة",
+    image: "images/kunafa.jpg",
+    allergens: ["D", "G", "N", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Kunafa",
+        draft: true,
+        ingredients: [
+          "Kunafa (kataifi) dough - 80g", "Butter, melted - 20g", "Pistachio, crushed - 15g",
+          "Sugar syrup - 40g", "Cream (qishta) - 30g", "Rose water, a few drops",
+        ],
+        method: [
+          "Toss the shredded kunafa dough with melted butter.",
+          "Press into a mould with a layer of cream in the centre, then top with more dough.",
+          "Bake or pan-fry until golden and crisp.",
+          "Unmould, soak with sugar syrup, and finish with crushed pistachio and rose water.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "tres-leches",
+    category: "sweets",
+    price: 45,
+    nameEn: "Tres Leches",
+    nameAr: "تري ليتشي",
+    image: "images/tres-leches.jpg",
+    allergens: ["D", "G", "N", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Tres Leches cake",
+        draft: true,
+        ingredients: [
+          "Sponge cake base - 100g", "Whole milk - 60ml", "Evaporated milk - 40ml",
+          "Condensed milk - 40g", "Cream, whipped - 50ml", "Vanilla, to taste", "Cinnamon or crumble, to garnish",
+        ],
+        method: [
+          "Bake a light sponge cake and let it cool.",
+          "Whisk together the three milks and soak generously into the cake.",
+          "Chill until fully absorbed.",
+          "Top with whipped cream and finish with a light dusting of cinnamon or crumble.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "guilty",
+    category: "sweets",
+    price: 60,
+    nameEn: "Guilty",
+    nameAr: "جيلتي",
+    image: "images/guilty.jpg",
+    allergens: ["D", "G", "N", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Chocolate fondant",
+        draft: true,
+        ingredients: [
+          "Dark chocolate 72% - 80g", "Butter - 40g", "Sugar - 30g", "Eggs - 2 pc",
+          "Flour - 20g", "Icing sugar, to dust",
+        ],
+        method: [
+          "Melt the chocolate and butter together.",
+          "Whisk the eggs and sugar until pale, then fold into the chocolate mixture.",
+          "Fold in the flour gently.",
+          "Pour into buttered moulds and bake at high heat until the edges are set but the centre stays molten, about 8-10 minutes.",
+          "Unmould, dust with icing sugar, and serve immediately.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "waffle",
+    category: "sweets",
+    price: 50,
+    nameEn: "Waffle",
+    nameAr: "وافل",
+    image: "images/waffle.jpg",
+    allergens: ["D", "G", "N", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Waffle",
+        draft: true,
+        ingredients: ["Waffle batter mix - 120g", "Date syrup - 25g", "Mixed berries - 50g", "Whipped cream, to finish"],
+        method: [
+          "Cook the batter in a hot waffle iron until golden and crisp.",
+          "Plate and drizzle generously with date syrup.",
+          "Top with mixed berries and a swirl of whipped cream.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "torte-caprese",
+    category: "sweets",
+    price: 50,
+    nameEn: "Torte Caprese (Gluten-Free)",
+    nameAr: "تورتا كابريسي",
+    image: "images/torte-caprese.jpg",
+    allergens: ["D", "N", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Torte Caprese",
+        draft: true,
+        ingredients: [
+          "Ground almond - 70g", "72% Venezuelan chocolate - 60g", "Butter - 40g",
+          "Sugar - 30g", "Eggs - 2 pc", "Vanilla, to taste",
+        ],
+        method: [
+          "Melt the chocolate and butter together.",
+          "Whisk eggs and sugar until pale and thick.",
+          "Fold in the melted chocolate, ground almond and vanilla.",
+          "Bake in a lined tin until just set with a slightly fudgy centre.",
+          "Cool before slicing; serve with cream and berries.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "five-a-day",
+    category: "sweets",
+    price: 50,
+    nameEn: "Five A Day",
+    nameAr: "فايف أ داي",
+    image: "images/five-a-day.jpg",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Seasonal fruit platter",
+        draft: true,
+        ingredients: ["Seasonal mixed fruit (melon, pineapple, dragon fruit, passionfruit, grapes) - 250g"],
+        method: [
+          "Cut the fruit into clean, uniform pieces.",
+          "Arrange decoratively on a chilled plate.",
+          "Serve immediately for freshness.",
+        ],
+      },
+    ],
+  }),
+
+  /* ------------------------------- ICE CREAM & SORBET ------------------------------- */
+  R({
+    id: "ice-cream",
+    category: "icecream",
+    price: 25,
+    nameEn: "Ice Cream",
+    nameAr: "الآيس كريم",
+    image: "images/ice-cream.jpg",
+    platingNotes: "Flavors: Chocolate, Vanilla, Strawberry, Pistachio, Dates. 2 scoops AED 25 · 3 scoops AED 35.",
+    allergens: ["D", "V"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Ice cream service",
+        draft: true,
+        ingredients: ["Ice cream, flavor of choice - 2-3 scoops", "Optional garnish (nuts, crumble, sauce)"],
+        method: [
+          "Scoop the chosen flavor(s) into a chilled bowl.",
+          "Finish with the appropriate garnish for that flavor and serve immediately.",
+        ],
+      },
+    ],
+  }),
+  R({
+    id: "sorbet",
+    category: "icecream",
+    price: 25,
+    nameEn: "Sorbet",
+    nameAr: "شربات",
+    image: "images/sorbet.jpg",
+    platingNotes: "Flavors: Raspberry, Mango, Piña Colada. 2 scoops AED 25 · 3 scoops AED 35.",
+    allergens: ["Vg"],
+    allergensSource: "unverified-menu",
+    components: [
+      {
+        title: "Sorbet service",
+        draft: true,
+        ingredients: ["Sorbet, flavor of choice - 2-3 scoops", "Optional fresh fruit garnish"],
+        method: [
+          "Scoop the chosen sorbet flavor(s) into a chilled bowl.",
+          "Garnish with fresh fruit and serve immediately.",
+        ],
+      },
+    ],
+  }),
+
   /* ------------------------------- BREAKFAST PREP ------------------------------- */
   R({
     id: "breakfast-poached-egg",
+    price: null,
     category: "breakfast",
     nameEn: "Poached Egg (breakfast prep)",
     nameAr: "",
@@ -1081,6 +1638,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "breakfast-falafel-waffle",
+    price: null,
     category: "breakfast",
     nameEn: "Falafel Waffle (breakfast prep)",
     nameAr: "",
@@ -1097,6 +1655,7 @@ const SEED_RECIPES = [
   }),
   R({
     id: "breakfast-hash-brown",
+    price: null,
     category: "breakfast",
     nameEn: "Hash Brown (breakfast prep)",
     nameAr: "",
