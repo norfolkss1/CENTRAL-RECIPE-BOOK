@@ -15,7 +15,7 @@ const COSTING_DATA = {
       "desc": "Tomato Fr.",
       "qty": 150,
       "unit": "Gm",
-      "unitCost": 0.00325
+      "unitCost": 0.006435
     },
     {
       "desc": "Tomato Plum Peeled Drain.2,5Kg",
@@ -27,31 +27,31 @@ const COSTING_DATA = {
       "desc": "Tomatoe Paste Drain.2,2Kg",
       "qty": 25,
       "unit": "Gm",
-      "unitCost": 0.006214
+      "unitCost": 0.014545
     },
     {
       "desc": "Onion Red Fr.",
       "qty": 25,
       "unit": "Gm",
-      "unitCost": 0.00165
+      "unitCost": 0.0031
     },
     {
       "desc": "Garlic Peeled Fr.",
       "qty": 3,
       "unit": "Gm",
-      "unitCost": 0.008
+      "unitCost": 0.01066
     },
     {
       "desc": "Cress Basil",
       "qty": 0.2,
       "unit": "Gm",
-      "unitCost": 0.065
+      "unitCost": 0.048
     },
     {
       "desc": "Table Salt 1Kg",
       "qty": 4,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Black Pepper Powder",
@@ -63,13 +63,13 @@ const COSTING_DATA = {
       "desc": "Celery Fr.",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.006
+      "unitCost": 0.01161
     },
     {
       "desc": "Sugar White",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00238
+      "unitCost": 0.0066
     },
     {
       "desc": "Bay Leaves",
@@ -81,7 +81,7 @@ const COSTING_DATA = {
       "desc": "Cream F/Cooking 49%",
       "qty": 100,
       "unit": "ml",
-      "unitCost": 0.009692
+      "unitCost": 0.011125
     },
     {
       "desc": "Leek Fr.",
@@ -93,7 +93,7 @@ const COSTING_DATA = {
       "desc": "Carrot Fr.",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.0035
+      "unitCost": 0.00464
     }
   ],
   "panzanella": [
@@ -107,37 +107,37 @@ const COSTING_DATA = {
       "desc": "Tomato Cherry Kumato Fr.",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.025
+      "unitCost": 0.02047
     },
     {
       "desc": "Tomato Cherry Fr. Red Bunch",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.022
+      "unitCost": 0.02047
     },
     {
       "desc": "Onion Pearl Fr.",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.04
+      "unitCost": 0.0061
     },
     {
       "desc": "Garlic Peeled Fr.",
       "qty": 0.5,
       "unit": "Gm",
-      "unitCost": 0.008
+      "unitCost": 0.01066
     },
     {
       "desc": "Cress Basil",
       "qty": 0.2,
       "unit": "Gm",
-      "unitCost": 0.065
+      "unitCost": 0.048
     },
     {
       "desc": "Table Salt 1Kg",
       "qty": 4,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Black Pepper Powder",
@@ -149,7 +149,7 @@ const COSTING_DATA = {
       "desc": "Anchovi Cantabric Sea 50gm Tin",
       "qty": 0.5,
       "unit": "Grm",
-      "unitCost": 0.495
+      "unitCost": 0.121429
     },
     {
       "desc": "Caper Drain.32Oz 907Gr",
@@ -161,37 +161,37 @@ const COSTING_DATA = {
       "desc": "Capsicum Red Imp.",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.009
+      "unitCost": 0.01545
     },
     {
       "desc": "Capsicum Yellow Imp.",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.0105
+      "unitCost": 0.01545
     },
     {
       "desc": "Capsicum Green",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.004
+      "unitCost": 0.00666
     },
     {
       "desc": "Oil Olive Extra Virgin",
       "qty": 10,
       "unit": "ml",
-      "unitCost": 0.021
+      "unitCost": 0.15134
     },
     {
       "desc": "Olives Black Pitted",
       "qty": 0.2,
       "unit": "Gm",
-      "unitCost": 0.00795
+      "unitCost": 0.033875
     },
     {
       "desc": "Crystel Bread",
       "qty": 1,
       "unit": "Each",
-      "unitCost": 3.3
+      "unitCost": 3.64
     },
     {
       "desc": "Micro Greens",
@@ -205,19 +205,19 @@ const COSTING_DATA = {
       "desc": "Beef Cecina - Contra",
       "qty": 50,
       "unit": "Grm",
-      "unitCost": 0.165
+      "unitCost": 0.182
     },
     {
       "desc": "Beef Premium Chorizo",
       "qty": 20,
       "unit": "Grm",
-      "unitCost": 0.1
+      "unitCost": 0.12
     },
     {
       "desc": "Beef Premium Salchichon",
       "qty": 20,
       "unit": "Grm",
-      "unitCost": 0.095
+      "unitCost": 0.23
     },
     {
       "desc": "Mabchego Cheese",
@@ -235,13 +235,13 @@ const COSTING_DATA = {
       "desc": "Grape White Seedless Fr.",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.011
+      "unitCost": 0.0156
     },
     {
       "desc": "Grape Red Seedless",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.012
+      "unitCost": 0.01663
     },
     {
       "desc": "Quince Jelly",
@@ -265,7 +265,7 @@ const COSTING_DATA = {
       "desc": "Apricot Dry",
       "qty": 4,
       "unit": "Gm",
-      "unitCost": 0.042
+      "unitCost": 0.069
     },
     {
       "desc": "Fig Dried",
@@ -277,13 +277,13 @@ const COSTING_DATA = {
       "desc": "Olives Green Whole",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.0248
+      "unitCost": 0.033875
     },
     {
       "desc": "Olives Black Pitted",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00795
+      "unitCost": 0.033875
     },
     {
       "desc": "Bread Stick",
@@ -297,7 +297,7 @@ const COSTING_DATA = {
       "desc": "Cheese Brie",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.035
+      "unitCost": 0.0495
     },
     {
       "desc": "Carotha Cheese",
@@ -321,7 +321,7 @@ const COSTING_DATA = {
       "desc": "Grape White Seedless Fr.",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.011
+      "unitCost": 0.0156
     },
     {
       "desc": "Grape Red Fr.",
@@ -351,7 +351,7 @@ const COSTING_DATA = {
       "desc": "Apricot Dry",
       "qty": 4,
       "unit": "Gm",
-      "unitCost": 0.042
+      "unitCost": 0.069
     },
     {
       "desc": "Fig Dried",
@@ -363,13 +363,13 @@ const COSTING_DATA = {
       "desc": "Olives Green Whole",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.0248
+      "unitCost": 0.033875
     },
     {
       "desc": "Olives Black Pitted",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.00795
+      "unitCost": 0.033875
     },
     {
       "desc": "Bread Stick",
@@ -389,7 +389,7 @@ const COSTING_DATA = {
       "desc": "Japanese Panko",
       "qty": 25,
       "unit": "gm",
-      "unitCost": 0.022857
+      "unitCost": 0.035
     },
     {
       "desc": "Walnut Peeled",
@@ -401,7 +401,7 @@ const COSTING_DATA = {
       "desc": "Table Salt 1Kg",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Black Pepper Powder",
@@ -413,19 +413,19 @@ const COSTING_DATA = {
       "desc": "Oil Olive Extra Virgin",
       "qty": 20,
       "unit": "ml",
-      "unitCost": 0.021
+      "unitCost": 0.15134
     },
     {
       "desc": "Parsley Local Kg",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.00525
+      "unitCost": 0.005
     },
     {
       "desc": "Bread Arabic Fr.12Cm 60Gr",
       "qty": 1,
       "unit": "Pcs",
-      "unitCost": 2.5
+      "unitCost": 4.75
     }
   ],
   "hot-mezze-platter": [
@@ -451,13 +451,13 @@ const COSTING_DATA = {
       "desc": "Falafel",
       "qty": 100,
       "unit": "gm",
-      "unitCost": 0.018056
+      "unitCost": 0.05
     },
     {
       "desc": "Mayonnaise",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.00331
+      "unitCost": 0.00325
     }
   ],
   "guacamole": [
@@ -465,25 +465,25 @@ const COSTING_DATA = {
       "desc": "Avocado Hass Ripe Fr.12Uni",
       "qty": 200,
       "unit": "Gm",
-      "unitCost": 0.025
+      "unitCost": 0.028
     },
     {
       "desc": "Lime Seedless Fr.10Uni Kg",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.008
+      "unitCost": 0.01269
     },
     {
       "desc": "Onion Pearl Fr.",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.04
+      "unitCost": 0.0061
     },
     {
       "desc": "Tomato Fr.",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.00325
+      "unitCost": 0.006435
     },
     {
       "desc": "Coriander Fr.",
@@ -495,19 +495,19 @@ const COSTING_DATA = {
       "desc": "Table Salt 1Kg",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Pomegranate Fr.3Uni Kg",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.01
+      "unitCost": 0.0184
     },
     {
       "desc": "Tortilla Chips",
       "qty": 60,
       "unit": "gm",
-      "unitCost": 0.0335
+      "unitCost": 0.03167
     }
   ],
   "croquettes": [
@@ -527,7 +527,7 @@ const COSTING_DATA = {
       "desc": "Mayonnaise",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.00331
+      "unitCost": 0.00325
     },
     {
       "desc": "Mabchego Cheese",
@@ -547,25 +547,25 @@ const COSTING_DATA = {
       "desc": "Table Salt 1Kg",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Butter Block",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.0312
+      "unitCost": 0.037
     },
     {
       "desc": "Safron",
       "qty": 0.1,
       "unit": "Grm",
-      "unitCost": 21.75
+      "unitCost": 60.0
     },
     {
       "desc": "Mayonnaise",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.00331
+      "unitCost": 0.00325
     },
     {
       "desc": "Bolognese",
@@ -591,7 +591,7 @@ const COSTING_DATA = {
       "desc": "Pickle Onion",
       "qty": 10,
       "unit": "gm",
-      "unitCost": 0.009
+      "unitCost": 0.006
     },
     {
       "desc": "Micro Greens",
@@ -605,19 +605,19 @@ const COSTING_DATA = {
       "desc": "Chicken Thigh Boneless Skinless Froz.",
       "qty": 80,
       "unit": "Gm",
-      "unitCost": 0.016
+      "unitCost": 0.01675
     },
     {
       "desc": "Milk Full Fat Long Life Br/1L",
       "qty": 150,
       "unit": "ml",
-      "unitCost": 0.003025
+      "unitCost": 0.00354
     },
     {
       "desc": "Garlic Peeled Fr.",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.008
+      "unitCost": 0.01066
     },
     {
       "desc": "Micro Greens",
@@ -641,13 +641,13 @@ const COSTING_DATA = {
       "desc": "Mayonnaise",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.00331
+      "unitCost": 0.00325
     },
     {
       "desc": "Sugar White",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.00238
+      "unitCost": 0.0066
     }
   ],
   "prawn-tempura": [
@@ -655,19 +655,19 @@ const COSTING_DATA = {
       "desc": "Shrimp H/Less Black Tiger Froz.16/20",
       "qty": 300,
       "unit": "Gm",
-      "unitCost": 0.041
+      "unitCost": 0.022
     },
     {
       "desc": "Egg Fr.Tray 30Pc",
       "qty": 1,
       "unit": "Pcs",
-      "unitCost": 0.44269
+      "unitCost": 0.694
     },
     {
       "desc": "Table Salt 1Kg",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Black Pepper Powder",
@@ -685,7 +685,7 @@ const COSTING_DATA = {
       "desc": "Ginger Fr.",
       "qty": 0.3,
       "unit": "Gm",
-      "unitCost": 0.006
+      "unitCost": 0.00741
     },
     {
       "desc": "Ponzu Sauce",
@@ -703,13 +703,13 @@ const COSTING_DATA = {
       "desc": "Flour Patisserie T45",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.0042
+      "unitCost": 0.005
     },
     {
       "desc": "Japanese Panko",
       "qty": 25,
       "unit": "gm",
-      "unitCost": 0.022857
+      "unitCost": 0.035
     }
   ],
   "calamari": [
@@ -723,13 +723,13 @@ const COSTING_DATA = {
       "desc": "Egg Fr.Tray 30Pc",
       "qty": 1,
       "unit": "Pcs",
-      "unitCost": 0.44269
+      "unitCost": 0.694
     },
     {
       "desc": "Table Salt 1Kg",
       "qty": 2,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Black Pepper Powder",
@@ -747,19 +747,19 @@ const COSTING_DATA = {
       "desc": "Mayonnaise",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.00331
+      "unitCost": 0.00325
     },
     {
       "desc": "Flour Patisserie T45",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.0042
+      "unitCost": 0.005
     },
     {
       "desc": "Japanese Panko",
       "qty": 15,
       "unit": "gm",
-      "unitCost": 0.022857
+      "unitCost": 0.035
     }
   ],
   "edamame": [
@@ -767,13 +767,13 @@ const COSTING_DATA = {
       "desc": "Edamame Whole 500G",
       "qty": 60,
       "unit": "gm",
-      "unitCost": 0.016
+      "unitCost": 0.009
     },
     {
       "desc": "Salt Sea Maldon Pack/250Gr",
       "qty": 0.3,
       "unit": "Gm",
-      "unitCost": 0.048
+      "unitCost": 0.056
     }
   ],
   "bocadillo": [
@@ -787,25 +787,25 @@ const COSTING_DATA = {
       "desc": "Butter Block",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.0312
+      "unitCost": 0.037
     },
     {
       "desc": "Tomato Sauce",
       "qty": 10,
       "unit": "Gm",
-      "unitCost": 0.00252
+      "unitCost": 0.008
     },
     {
       "desc": "Oil Olive Extra Virgin",
       "qty": 5,
       "unit": "ml",
-      "unitCost": 0.021
+      "unitCost": 0.15134
     },
     {
       "desc": "Cecina Leon Fr",
       "qty": 40,
       "unit": "Grm",
-      "unitCost": 0.165
+      "unitCost": 0.182
     },
     {
       "desc": "Pepper Piquillo Oliv.Oil Drain/390Gr",
@@ -823,13 +823,13 @@ const COSTING_DATA = {
       "desc": "French Fries 9Mm Froz.",
       "qty": 60,
       "unit": "Gm",
-      "unitCost": 0.00744
+      "unitCost": 0.0092
     },
     {
       "desc": "Salt Sea Maldon Pack/250Gr",
       "qty": 0.3,
       "unit": "Gm",
-      "unitCost": 0.048
+      "unitCost": 0.056
     },
     {
       "desc": "Black Pepper Powder",
@@ -847,13 +847,13 @@ const COSTING_DATA = {
       "desc": "Tomato Sauce",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.00252
+      "unitCost": 0.008
     },
     {
       "desc": "Mayonnaise",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.00331
+      "unitCost": 0.00325
     }
   ],
   "cachopo": [
@@ -861,13 +861,13 @@ const COSTING_DATA = {
       "desc": "Breast Chicken Skin On W/Wing",
       "qty": 1,
       "unit": "Gm",
-      "unitCost": 0.023
+      "unitCost": 0.032
     },
     {
       "desc": "Cecina Leon Fr",
       "qty": 25,
       "unit": "Grm",
-      "unitCost": 0.165
+      "unitCost": 0.182
     },
     {
       "desc": "Pepper Piquillo Oliv.Oil Drain/390Gr",
@@ -885,25 +885,25 @@ const COSTING_DATA = {
       "desc": "Capsicum Red Imp.",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.009
+      "unitCost": 0.01545
     },
     {
       "desc": "Garlic Peeled Fr.",
       "qty": 0.3,
       "unit": "Gm",
-      "unitCost": 0.008
+      "unitCost": 0.01066
     },
     {
       "desc": "Oil Olive Extra Virgin",
       "qty": 15,
       "unit": "ml",
-      "unitCost": 0.021
+      "unitCost": 0.15134
     },
     {
       "desc": "Table Salt 1Kg",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Pepper Black Grain",
@@ -921,7 +921,7 @@ const COSTING_DATA = {
       "desc": "French Fries 9Mm Froz.",
       "qty": 50,
       "unit": "Gm",
-      "unitCost": 0.00744
+      "unitCost": 0.0092
     },
     {
       "desc": "Cabbage Wh.Fr.",
@@ -933,25 +933,25 @@ const COSTING_DATA = {
       "desc": "Egg Fr.Tray 30Pc",
       "qty": 1,
       "unit": "Pcs",
-      "unitCost": 0.44269
+      "unitCost": 0.694
     },
     {
       "desc": "Flour Patisserie T45",
       "qty": 20,
       "unit": "Gm",
-      "unitCost": 0.0042
+      "unitCost": 0.005
     },
     {
       "desc": "Japanese Panko",
       "qty": 30,
       "unit": "gm",
-      "unitCost": 0.022857
+      "unitCost": 0.035
     },
     {
       "desc": "Parsley Local Kg",
       "qty": 0.2,
       "unit": "Gm",
-      "unitCost": 0.00525
+      "unitCost": 0.005
     }
   ],
   "la-mediterranea": [
@@ -959,7 +959,7 @@ const COSTING_DATA = {
       "desc": "Salmon Whole Fr.",
       "qty": 200,
       "unit": "Gm",
-      "unitCost": 0.06
+      "unitCost": 0.044875
     },
     {
       "desc": "Frozen Raw Coarse Beef Chorizo Sausages",
@@ -971,7 +971,7 @@ const COSTING_DATA = {
       "desc": "Orzo Pasta",
       "qty": 50,
       "unit": "gm",
-      "unitCost": 0.03
+      "unitCost": 0.013
     },
     {
       "desc": "Fish Stock",
@@ -983,7 +983,7 @@ const COSTING_DATA = {
       "desc": "Tomato Sauce",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.00252
+      "unitCost": 0.008
     },
     {
       "desc": "Chive Fr. Bag/100Gr",
@@ -995,31 +995,31 @@ const COSTING_DATA = {
       "desc": "Oil Olive Extra Virgin",
       "qty": 25,
       "unit": "ml",
-      "unitCost": 0.021
+      "unitCost": 0.15134
     },
     {
       "desc": "Table Salt 1Kg",
       "qty": 5,
       "unit": "Gm",
-      "unitCost": 0.00168
+      "unitCost": 0.00325
     },
     {
       "desc": "Butter Block",
       "qty": 15,
       "unit": "Gm",
-      "unitCost": 0.0312
+      "unitCost": 0.037
     },
     {
       "desc": "Garlic Peeled Fr.",
       "qty": 0.7,
       "unit": "Gm",
-      "unitCost": 0.008
+      "unitCost": 0.01066
     },
     {
       "desc": "Rosemary Fr.Bag/50Gr",
       "qty": 0.2,
       "unit": "Gm",
-      "unitCost": 0.11
+      "unitCost": 0.051
     }
   ]
 };
@@ -1038,13 +1038,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Carrot",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.00464
     },
     {
       "desc": "Onion",
       "qty": 15,
       "unit": "g",
-      "unitCost": 0.003
+      "unitCost": 0.00483
     },
     {
       "desc": "Vegetable stock",
@@ -1082,13 +1082,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Carrot",
       "qty": 15,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.00464
     },
     {
       "desc": "Celery",
       "qty": 10,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.01161
     }
   ],
   "mushroom-soup": [
@@ -1096,7 +1096,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "White mushroom",
       "qty": 90,
       "unit": "g",
-      "unitCost": 0.02
+      "unitCost": 0.01898
     },
     {
       "desc": "Dried porcini",
@@ -1108,13 +1108,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Cream",
       "qty": 60,
       "unit": "ml",
-      "unitCost": 0.02
+      "unitCost": 0.011125
     },
     {
       "desc": "Butter",
       "qty": 15,
       "unit": "g",
-      "unitCost": 0.045
+      "unitCost": 0.037
     },
     {
       "desc": "Vegetable stock",
@@ -1128,37 +1128,37 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Tuna loin",
       "qty": 160,
       "unit": "g",
-      "unitCost": 0.09
+      "unitCost": 0.068
     },
     {
       "desc": "Green beans",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.01
+      "unitCost": 0.014
     },
     {
       "desc": "Purple potato",
       "qty": 80,
       "unit": "g",
-      "unitCost": 0.006
+      "unitCost": 0.06393
     },
     {
       "desc": "Cherry tomato",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.02047
     },
     {
       "desc": "Nicoise olives",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.03
+      "unitCost": 0.033875
     },
     {
       "desc": "Egg",
       "qty": 1,
       "unit": "pc",
-      "unitCost": 0.75
+      "unitCost": 0.694
     }
   ],
   "caesar-salad": [
@@ -1166,13 +1166,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Romaine lettuce",
       "qty": 150,
       "unit": "g",
-      "unitCost": 0.01
+      "unitCost": 0.00853
     },
     {
       "desc": "Parmesan",
       "qty": 15,
       "unit": "g",
-      "unitCost": 0.09
+      "unitCost": 0.065
     },
     {
       "desc": "Croutons",
@@ -1192,31 +1192,31 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Avocado",
       "qty": 0.5,
       "unit": "pc",
-      "unitCost": 3.5
+      "unitCost": 2.33
     },
     {
       "desc": "Quinoa",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.02
+      "unitCost": 0.04
     },
     {
       "desc": "Asparagus",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.03
+      "unitCost": 0.04657
     },
     {
       "desc": "Broccoli",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.00923
     },
     {
       "desc": "Pumpkin seed",
       "qty": 10,
       "unit": "g",
-      "unitCost": 0.06
+      "unitCost": 0.028
     }
   ],
   "hummus": [
@@ -1224,31 +1224,31 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Chickpeas (dry)",
       "qty": 120,
       "unit": "g",
-      "unitCost": 0.01
+      "unitCost": 0.011
     },
     {
       "desc": "Tahini",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.025
+      "unitCost": 0.01829
     },
     {
       "desc": "Lemon juice",
       "qty": 10,
       "unit": "ml",
-      "unitCost": 0.01
+      "unitCost": 0.03
     },
     {
       "desc": "Olive oil",
       "qty": 15,
       "unit": "ml",
-      "unitCost": 0.03
+      "unitCost": 0.15134
     },
     {
       "desc": "Arabic bread",
       "qty": 60,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.0754
     }
   ],
   "moutabel": [
@@ -1256,25 +1256,25 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Eggplant",
       "qty": 200,
       "unit": "g",
-      "unitCost": 0.008
+      "unitCost": 0.01
     },
     {
       "desc": "Tahini",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.025
+      "unitCost": 0.01829
     },
     {
       "desc": "Yoghurt",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.00345
     },
     {
       "desc": "Arabic bread",
       "qty": 60,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.0754
     }
   ],
   "fattoush": [
@@ -1282,19 +1282,19 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Romaine lettuce",
       "qty": 120,
       "unit": "g",
-      "unitCost": 0.01
+      "unitCost": 0.00853
     },
     {
       "desc": "Cucumber",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.006
+      "unitCost": 0.00602
     },
     {
       "desc": "Tomato",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.006
+      "unitCost": 0.006435
     },
     {
       "desc": "Radish",
@@ -1306,7 +1306,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Fried pita",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.015
+      "unitCost": 0.04167
     },
     {
       "desc": "Pomegranate molasses",
@@ -1320,7 +1320,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Dry chickpeas",
       "qty": 130,
       "unit": "g",
-      "unitCost": 0.01
+      "unitCost": 0.011
     },
     {
       "desc": "Fresh herbs",
@@ -1332,13 +1332,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Tahina yoghurt sauce",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.02
+      "unitCost": 0.0109
     },
     {
       "desc": "Frying oil",
       "qty": 30,
       "unit": "ml",
-      "unitCost": 0.012
+      "unitCost": 0.005588
     }
   ],
   "bolognese": [
@@ -1346,31 +1346,31 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Beef mince",
       "qty": 130,
       "unit": "g",
-      "unitCost": 0.045
+      "unitCost": 0.031
     },
     {
       "desc": "Pasta (dry)",
       "qty": 120,
       "unit": "g",
-      "unitCost": 0.008
+      "unitCost": 0.013
     },
     {
       "desc": "Tomato sauce",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.007
+      "unitCost": 0.008
     },
     {
       "desc": "Mirepoix (onion/carrot/celery)",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.00681
     },
     {
       "desc": "Parmesan",
       "qty": 10,
       "unit": "g",
-      "unitCost": 0.09
+      "unitCost": 0.065
     }
   ],
   "pesto-3ps": [
@@ -1378,7 +1378,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Pasta (dry)",
       "qty": 120,
       "unit": "g",
-      "unitCost": 0.008
+      "unitCost": 0.013
     },
     {
       "desc": "Basil pesto (house-made)",
@@ -1396,7 +1396,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Parmesan",
       "qty": 10,
       "unit": "g",
-      "unitCost": 0.09
+      "unitCost": 0.065
     }
   ],
   "thermidor": [
@@ -1404,7 +1404,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Shrimp",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.08
+      "unitCost": 0.022
     },
     {
       "desc": "Potato hotdog bun",
@@ -1416,7 +1416,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Cheese (grated)",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.06
+      "unitCost": 0.065
     },
     {
       "desc": "Cream/butter/flour base",
@@ -1442,7 +1442,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Cheese slice",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.06
+      "unitCost": 0.048
     },
     {
       "desc": "Piquillo peppers",
@@ -1454,7 +1454,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Pickles",
       "qty": 15,
       "unit": "g",
-      "unitCost": 0.02
+      "unitCost": 0.008
     }
   ],
   "nasi-goreng": [
@@ -1468,19 +1468,19 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Chicken",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.025
+      "unitCost": 0.01075
     },
     {
       "desc": "Shrimp",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.08
+      "unitCost": 0.022
     },
     {
       "desc": "Egg",
       "qty": 1,
       "unit": "pc",
-      "unitCost": 0.75
+      "unitCost": 0.694
     },
     {
       "desc": "Prawn crackers",
@@ -1492,7 +1492,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Peanut sauce",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.025
+      "unitCost": 0.015
     }
   ],
   "mashed-potato": [
@@ -1500,25 +1500,25 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Potato",
       "qty": 180,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.003285
     },
     {
       "desc": "Butter",
       "qty": 25,
       "unit": "g",
-      "unitCost": 0.045
+      "unitCost": 0.037
     },
     {
       "desc": "Cream",
       "qty": 30,
       "unit": "ml",
-      "unitCost": 0.02
+      "unitCost": 0.011125
     },
     {
       "desc": "Milk",
       "qty": 20,
       "unit": "ml",
-      "unitCost": 0.006
+      "unitCost": 0.00354
     }
   ],
   "padron": [
@@ -1526,19 +1526,19 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Padr\u00f3n peppers",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.025
+      "unitCost": 0.050685
     },
     {
       "desc": "Olive oil",
       "qty": 15,
       "unit": "ml",
-      "unitCost": 0.03
+      "unitCost": 0.15134
     },
     {
       "desc": "Maldon salt",
       "qty": 2,
       "unit": "g",
-      "unitCost": 0.05
+      "unitCost": 0.056
     }
   ],
   "del-mar": [
@@ -1546,13 +1546,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Tagliatelle (dry)",
       "qty": 120,
       "unit": "g",
-      "unitCost": 0.009
+      "unitCost": 0.013
     },
     {
       "desc": "Shrimp",
       "qty": 60,
       "unit": "g",
-      "unitCost": 0.08
+      "unitCost": 0.022
     },
     {
       "desc": "Mussels",
@@ -1576,18 +1576,70 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Tomato sauce",
       "qty": 80,
       "unit": "g",
-      "unitCost": 0.007
+      "unitCost": 0.008
     },
     {
       "desc": "Garlic",
       "qty": 5,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.01066
     }
   ],
   "pinchos-chicken": [
     {
       "desc": "Chicken thigh",
+      "qty": 150,
+      "unit": "g",
+      "unitCost": 0.01675
+    },
+    {
+      "desc": "Onion",
+      "qty": 30,
+      "unit": "g",
+      "unitCost": 0.00483
+    },
+    {
+      "desc": "Pickles",
+      "qty": 20,
+      "unit": "g",
+      "unitCost": 0.008
+    },
+    {
+      "desc": "Garden salad mix",
+      "qty": 40,
+      "unit": "g",
+      "unitCost": 0.009
+    }
+  ],
+  "pinchos-beef": [
+    {
+      "desc": "Beef sirloin",
+      "qty": 150,
+      "unit": "g",
+      "unitCost": 0.115
+    },
+    {
+      "desc": "Onion",
+      "qty": 30,
+      "unit": "g",
+      "unitCost": 0.00483
+    },
+    {
+      "desc": "Pickles",
+      "qty": 20,
+      "unit": "g",
+      "unitCost": 0.008
+    },
+    {
+      "desc": "Garden salad mix",
+      "qty": 40,
+      "unit": "g",
+      "unitCost": 0.009
+    }
+  ],
+  "pinchos-shrimp": [
+    {
+      "desc": "Shrimp",
       "qty": 150,
       "unit": "g",
       "unitCost": 0.022
@@ -1596,71 +1648,19 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Onion",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.003
+      "unitCost": 0.00483
     },
     {
       "desc": "Pickles",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.02
+      "unitCost": 0.008
     },
     {
       "desc": "Garden salad mix",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.012
-    }
-  ],
-  "pinchos-beef": [
-    {
-      "desc": "Beef sirloin",
-      "qty": 150,
-      "unit": "g",
-      "unitCost": 0.06
-    },
-    {
-      "desc": "Onion",
-      "qty": 30,
-      "unit": "g",
-      "unitCost": 0.003
-    },
-    {
-      "desc": "Pickles",
-      "qty": 20,
-      "unit": "g",
-      "unitCost": 0.02
-    },
-    {
-      "desc": "Garden salad mix",
-      "qty": 40,
-      "unit": "g",
-      "unitCost": 0.012
-    }
-  ],
-  "pinchos-shrimp": [
-    {
-      "desc": "Shrimp",
-      "qty": 150,
-      "unit": "g",
-      "unitCost": 0.08
-    },
-    {
-      "desc": "Onion",
-      "qty": 30,
-      "unit": "g",
-      "unitCost": 0.003
-    },
-    {
-      "desc": "Pickles",
-      "qty": 20,
-      "unit": "g",
-      "unitCost": 0.02
-    },
-    {
-      "desc": "Garden salad mix",
-      "qty": 40,
-      "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.009
     }
   ],
   "sauteed-vegetables": [
@@ -1668,31 +1668,31 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Asparagus",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.03
+      "unitCost": 0.04657
     },
     {
       "desc": "Broccoli",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.00923
     },
     {
       "desc": "Carrot",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.00464
     },
     {
       "desc": "Green beans",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.01
+      "unitCost": 0.014
     },
     {
       "desc": "Butter",
       "qty": 10,
       "unit": "g",
-      "unitCost": 0.045
+      "unitCost": 0.037
     }
   ],
   "mixed-side-salad": [
@@ -1700,25 +1700,25 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Mixed lettuce leaves",
       "qty": 80,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.00903
     },
     {
       "desc": "Cherry tomato",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.012
+      "unitCost": 0.02047
     },
     {
       "desc": "Asparagus",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.03
+      "unitCost": 0.04657
     },
     {
       "desc": "Olive oil dressing",
       "qty": 15,
       "unit": "ml",
-      "unitCost": 0.03
+      "unitCost": 0.15134
     }
   ],
   "steamed-rice": [
@@ -1734,13 +1734,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Sweet potato",
       "qty": 220,
       "unit": "g",
-      "unitCost": 0.006
+      "unitCost": 0.02177
     },
     {
       "desc": "Frying oil",
       "qty": 20,
       "unit": "ml",
-      "unitCost": 0.012
+      "unitCost": 0.005588
     }
   ],
   "french-fries": [
@@ -1748,13 +1748,13 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Potato",
       "qty": 220,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.003285
     },
     {
       "desc": "Frying oil",
       "qty": 20,
       "unit": "ml",
-      "unitCost": 0.012
+      "unitCost": 0.005588
     }
   ],
   "umm-ali": [
@@ -1768,25 +1768,25 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Milk",
       "qty": 150,
       "unit": "ml",
-      "unitCost": 0.006
+      "unitCost": 0.00354
     },
     {
       "desc": "Cream",
       "qty": 40,
       "unit": "ml",
-      "unitCost": 0.02
+      "unitCost": 0.011125
     },
     {
       "desc": "Sugar",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.005
+      "unitCost": 0.0066
     },
     {
       "desc": "Mixed nuts & raisins",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.04
+      "unitCost": 0.0452
     }
   ],
   "kunafa": [
@@ -1800,7 +1800,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Pistachio",
       "qty": 15,
       "unit": "g",
-      "unitCost": 0.09
+      "unitCost": 0.056
     },
     {
       "desc": "Sugar syrup",
@@ -1812,7 +1812,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Cream (qishta)",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.03
+      "unitCost": 0.014
     },
     {
       "desc": "Rose water",
@@ -1832,7 +1832,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Milk",
       "qty": 60,
       "unit": "ml",
-      "unitCost": 0.006
+      "unitCost": 0.00354
     },
     {
       "desc": "Condensed milk",
@@ -1844,7 +1844,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Cream",
       "qty": 50,
       "unit": "ml",
-      "unitCost": 0.02
+      "unitCost": 0.011125
     },
     {
       "desc": "Vanilla",
@@ -1864,25 +1864,25 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Butter",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.045
+      "unitCost": 0.037
     },
     {
       "desc": "Sugar",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.005
+      "unitCost": 0.0066
     },
     {
       "desc": "Egg",
       "qty": 2,
       "unit": "pc",
-      "unitCost": 0.75
+      "unitCost": 0.694
     },
     {
       "desc": "Flour",
       "qty": 20,
       "unit": "g",
-      "unitCost": 0.004
+      "unitCost": 0.005
     }
   ],
   "waffle": [
@@ -1902,7 +1902,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Mixed berries",
       "qty": 50,
       "unit": "g",
-      "unitCost": 0.04
+      "unitCost": 0.0246
     }
   ],
   "torte-caprese": [
@@ -1922,19 +1922,19 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Butter",
       "qty": 40,
       "unit": "g",
-      "unitCost": 0.045
+      "unitCost": 0.037
     },
     {
       "desc": "Sugar",
       "qty": 30,
       "unit": "g",
-      "unitCost": 0.005
+      "unitCost": 0.0066
     },
     {
       "desc": "Egg",
       "qty": 2,
       "unit": "pc",
-      "unitCost": 0.75
+      "unitCost": 0.694
     }
   ],
   "five-a-day": [
@@ -1942,7 +1942,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Seasonal mixed fruit",
       "qty": 250,
       "unit": "g",
-      "unitCost": 0.015
+      "unitCost": 0.012
     }
   ],
   "ice-cream": [
@@ -1950,7 +1950,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Ice cream base (2 scoops)",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.025
+      "unitCost": 0.022
     }
   ],
   "sorbet": [
@@ -1958,7 +1958,7 @@ const ESTIMATED_COSTING_DATA = {
       "desc": "Sorbet base (2 scoops)",
       "qty": 100,
       "unit": "g",
-      "unitCost": 0.02
+      "unitCost": 0.022
     }
   ]
 };
