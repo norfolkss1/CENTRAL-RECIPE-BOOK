@@ -248,9 +248,12 @@ textarea.field { resize: vertical; }
 .lightbox-backdrop {
   position: fixed; inset: 0; background: rgba(5,5,8,0.92); z-index: 150;
   display: flex; align-items: center; justify-content: center; padding: 30px;
+  overflow: auto;
 }
-.lightbox-backdrop img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
-.lightbox-backdrop .modal-close { top: 18px; right: 18px; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff; }
+.lightbox-backdrop img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; cursor: zoom-in; transition: transform .2s ease; transform-origin: center center; }
+.lightbox-backdrop img.zoomed { transform: scale(2.4); cursor: zoom-out; max-width: none; max-height: none; }
+.lightbox-backdrop .modal-close { top: 18px; right: 18px; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff; position: fixed; }
+.lightbox-hint { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 12px; }
 .modal-body { padding: 22px 26px 26px; }
 .modal-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .modal-title { font-size: 22px; font-weight: 800; letter-spacing: -0.2px; }
@@ -334,11 +337,29 @@ textarea.field { resize: vertical; }
 .print-only { display: none; }
 @media print {
   body > *:not(#print-area) { display: none !important; }
-  #print-area { display: block !important; position: static; background: #fff; color: #111; padding: 24px; font-family: Georgia, serif; }
-  #print-area h1 { font-size: 22px; }
-  #print-area h2 { font-size: 15px; margin-top: 18px; border-bottom: 1px solid #999; padding-bottom: 4px; }
-  #print-area .print-meta { font-size: 12px; color: #444; }
-  #print-area ul, #print-area ol { font-size: 13px; }
+  #print-area { display: block !important; position: static; background: #fff; color: #111; padding: 28px; font-family: Georgia, "Times New Roman", serif; max-width: 800px; margin: 0 auto; }
+
+  #print-area .print-header { display: flex; gap: 20px; align-items: flex-start; border-bottom: 2px solid #222; padding-bottom: 14px; margin-bottom: 14px; }
+  #print-area .print-photo { width: 160px; height: 160px; object-fit: cover; border-radius: 6px; border: 1px solid #ccc; flex-shrink: 0; }
+  #print-area .print-header-text { flex: 1; }
+  #print-area h1 { font-size: 24px; margin: 0 0 2px; }
+  #print-area .print-ar { font-size: 14px; color: #555; margin-bottom: 6px; }
+  #print-area .print-meta { font-size: 11.5px; color: #444; display: flex; gap: 10px; align-items: center; margin: 6px 0; }
+  #print-area .print-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid #999; text-transform: uppercase; letter-spacing: 0.3px; }
+  #print-area .print-tag-draft { border-color: #b8860b; color: #8a6400; }
+  #print-area .print-tag-verified { border-color: #2f7a4f; color: #2f7a4f; }
+  #print-area .print-stat-row { display: flex; gap: 22px; font-size: 11.5px; margin-top: 8px; }
+  #print-area .print-stat-row b { display: block; font-size: 9.5px; text-transform: uppercase; color: #777; font-weight: 700; }
+
+  #print-area h2 { font-size: 15px; margin-top: 20px; border-bottom: 1px solid #999; padding-bottom: 4px; }
+  #print-area .print-draft-tag { font-size: 9.5px; font-weight: 700; color: #8a6400; border: 1px solid #b8860b; border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: middle; }
+  #print-area .print-part { break-inside: avoid; margin-bottom: 10px; }
+  #print-area .print-part-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  #print-area .print-col-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; font-weight: 700; margin-bottom: 4px; }
+  #print-area .print-muted { color: #888; font-size: 12px; font-style: italic; }
+  #print-area ul, #print-area ol { font-size: 12.5px; margin: 0; padding-left: 18px; line-height: 1.5; }
+  #print-area li { margin-bottom: 3px; }
+  #print-area p { font-size: 13px; line-height: 1.5; }
 }
 
 /* ---------------- Recipe/component editor (admin + request form) ---------------- */

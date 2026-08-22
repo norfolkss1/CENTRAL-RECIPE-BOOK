@@ -91,7 +91,42 @@ data/costing-data.js     real ingredient-cost data imported from costing.xlsx
 images/                  dish photos extracted from the PPTX
 ```
 
-## Recent additions (latest update)
+## Recent additions (this update)
+
+- **Print now matches the on-screen recipe view** — photo, header with status/version
+  badges, prep/cook/yield/price stats, then each recipe part with ingredients and
+  method side by side. (Previously it printed as plain unstyled text.)
+- **Quick "Category" dropdown** directly on the recipe page (admin-only) — the
+  fastest way to move a dish between categories, in addition to the full editor.
+- **Lightbox now actually zooms** — click the photo to zoom in centered on where you
+  clicked, click again to zoom out; scroll to pan while zoomed.
+- **Cost shown next to Price** in the recipe header (admin-only) — pulled live from
+  that dish's costing data.
+- **All menu items are now in the app.** Every dish from the à la carte PDF that
+  wasn't already covered has been added: Charcutería Board, Cheese Board, Padrón,
+  Del Mar, Pinchos Chicken/Beef/Shrimp, all 5 side dishes, Umm Ali, Kunafa, Tres
+  Leches, Guilty, Waffle, Torte Caprese, Five A Day, Ice Cream, and Sorbet — each
+  with a real photo pulled from the PDF and a draft recipe authored from that photo
+  and the menu description, flagged **Draft** until a chef confirms it (same
+  treatment as the original PPTX gaps).
+  - **Important, real bug I found and fixed while doing this**: the Charcutería
+    Board and Cheese Board recipes had gone missing entirely from an earlier
+    editing pass — restored them from scratch.
+- **All dish prices** are the real à la carte menu prices (not the costing sheet's
+  numbers, which are a separate/older pricing exercise).
+- **Costing filled in for every sellable dish** — 17 from your invoice spreadsheet
+  (unchanged), and the remaining ~35 with estimated ingredient weights based on the
+  dish photos and standard portion sizes, clearly labeled "Estimated" in the costing
+  view (vs. "From supplier invoice data" for the real ones) so it's never confused
+  with actual invoiced cost. Only the base sauce and breakfast-prep items (not sold
+  as standalone dishes) have no costing.
+- **Seeding is now additive, not all-or-nothing.** Previously, new dishes/categories
+  I added would only appear automatically on a brand-new, empty database — if your
+  app was already running with data in it, they'd never show up. Now the app checks
+  what's already there and only adds what's missing, every time it loads, without
+  touching anything you've already edited.
+
+## Earlier additions
 
 - **Price per dish**, shown on list rows and in the detail view, editable by admin.
 - **Costing calculator** — a separate view (💰 Costing button, admin-only) per dish

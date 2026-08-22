@@ -84,6 +84,7 @@
 <div id="lightbox-backdrop" class="lightbox-backdrop hidden">
   <button class="modal-close" id="lightbox-close-btn">✕</button>
   <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-hint">Click the image to zoom in/out</div>
 </div>
 
 <!-- ============================== Costing calculator modal ============================== -->
@@ -125,9 +126,25 @@
   });
   document.getElementById("lightbox-close-btn").addEventListener("click", () => {
     document.getElementById("lightbox-backdrop").classList.add("hidden");
+    document.getElementById("lightbox-img").classList.remove("zoomed");
   });
   document.getElementById("lightbox-backdrop").addEventListener("click", (e) => {
-    if (e.target.id === "lightbox-backdrop") document.getElementById("lightbox-backdrop").classList.add("hidden");
+    if (e.target.id === "lightbox-backdrop") {
+      document.getElementById("lightbox-backdrop").classList.add("hidden");
+      document.getElementById("lightbox-img").classList.remove("zoomed");
+    }
+  });
+  document.getElementById("lightbox-img").addEventListener("click", (e) => {
+    const img = e.currentTarget;
+    if (img.classList.contains("zoomed")) {
+      img.classList.remove("zoomed");
+    } else {
+      const rect = img.getBoundingClientRect();
+      const originX = ((e.clientX - rect.left) / rect.width) * 100;
+      const originY = ((e.clientY - rect.top) / rect.height) * 100;
+      img.style.transformOrigin = `${originX}% ${originY}%`;
+      img.classList.add("zoomed");
+    }
   });
   document.getElementById("costing-backdrop").addEventListener("click", (e) => {
     if (e.target.id === "costing-backdrop") closeCosting();

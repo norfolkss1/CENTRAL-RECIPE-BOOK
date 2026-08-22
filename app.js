@@ -1,4 +1,4 @@
-/* global firebase, FIREBASE_CONFIG, CATEGORIES, SEED_RECIPES, COSTING_DATA, COSTING_TARGET_PCT, COSTING_MULTIPLIER */
+/* global firebase, FIREBASE_CONFIG, CATEGORIES, SEED_RECIPES, COSTING_DATA, COSTING_TARGET_PCT, COSTING_MULTIPLIER, ESTIMATED_COSTING_DATA */
 
 /* ============================== Firebase ============================== */
 firebase.initializeApp(FIREBASE_CONFIG);
@@ -132,9 +132,11 @@ function enterApp() {
 
 function listenCategories() {
   db.collection("categories").get().then(async (snap) => {
-    if (snap.empty) {
+    const existingIds = new Set(snap.docs.map((d) => d.id));
+    const missing = CATEGORIES.filter((c) => !existingIds.has(c.id));
+    if (missing.length) {
       const batch = db.batch();
-      CATEGORIES.forEach((c) => batch.set(db.collection("categories").doc(c.id), c));
+      missing.forEach((c) => batch.set(db.collection("categories").doc(c.id), c));
       await batch.commit();
     }
     db.collection("categories").orderBy("order").onSnapshot(
@@ -150,9 +152,11 @@ function listenCategories() {
 
 function listenRecipes() {
   db.collection("recipes").get().then(async (snap) => {
-    if (snap.empty) {
+    const existingIds = new Set(snap.docs.map((d) => d.id));
+    const missing = SEED_RECIPES.filter((r) => !existingIds.has(r.id));
+    if (missing.length) {
       const batch = db.batch();
-      SEED_RECIPES.forEach((r) => {
+      missing.forEach((r) => {
         batch.set(db.collection("recipes").doc(r.id), {
           ...r,
           version: 1,
@@ -616,11 +620,21 @@ function renderRecipeModal() {
         ${r.archived ? '<span class="badge badge-archived">Archived</span>' : ""}
       </div>
 
+      <div style="margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="form-label" style="margin:0;">Category:</span>
+        ${isAdmin ? `
+          <select class="field" id="quick-category-select" style="width:auto; margin-bottom:0; padding:6px 10px; font-size:13px;">
+            ${state.categories.map((c) => `<option value="${c.id}" ${c.id === r.category ? "selected" : ""}>${escapeHtml(c.label)}</option>`).join("")}
+          </select>
+        ` : `<span class="badge">${escapeHtml(categoryLabel(r.category))}</span>`}
+      </div>
+
       <div class="stat-strip">
         <div class="stat-box"><div class="stat-box-label">Prep</div><div class="stat-box-value">${escapeHtml(r.prepTime) || "—"}</div></div>
         <div class="stat-box"><div class="stat-box-label">Cook</div><div class="stat-box-value">${escapeHtml(r.cookTime) || "—"}</div></div>
         <div class="stat-box"><div class="stat-box-label">Yield</div><div class="stat-box-value">${escapeHtml(r.yield) || "—"}</div></div>
         <div class="stat-box"><div class="stat-box-label">Price</div><div class="stat-box-value">${r.price != null ? "AED " + r.price : "—"}</div></div>
+        ${isAdmin ? `<div class="stat-box"><div class="stat-box-label">Cost</div><div class="stat-box-value">AED ${costingTotalFor(r).toFixed(2)}</div></div>` : ""}
       </div>
 
       ${(r.allergens && r.allergens.length) ? `
@@ -688,7 +702,24 @@ function renderRecipeModal() {
   if (isAdmin) {
     document.getElementById("costing-btn").addEventListener("click", () => openCosting(r.id));
     document.getElementById("archive-btn").addEventListener("click", () => toggleArchive(r));
+    const catSelect = document.getElementById("quick-category-select");
+    if (catSelect) {
+      catSelect.addEventListener("change", async (e) => {
+        const newCat = e.target.value;
+        await applyRecipeChange(r, { category: newCat }, `Moved to "${categoryLabel(newCat)}" by ${state.name}`, state.name, state.name);
+      });
+    }
   }
+}
+
+function categoryLabel(catId) {
+  const c = state.categories.find((x) => x.id === catId);
+  return c ? c.label : catId;
+}
+
+function costingTotalFor(r) {
+  const costing = costingFor(r);
+  return (costing.ingredients || []).reduce((sum, i) => sum + (parseFloat(i.qty) || 0) * (parseFloat(i.unitCost) || 0), 0);
 }
 
 async function toggleTabDraft(r) {
@@ -700,7 +731,9 @@ async function toggleTabDraft(r) {
 /* ---- Lightbox ---- */
 function openLightbox(src) {
   if (!src) return;
-  document.getElementById("lightbox-img").src = src;
+  const img = document.getElementById("lightbox-img");
+  img.classList.remove("zoomed");
+  img.src = src;
   document.getElementById("lightbox-backdrop").classList.remove("hidden");
 }
 
@@ -930,11 +963,14 @@ async function applyRecipeChange(r, patch, summary, changedBy, approvedBy) {
 
 /* ============================== Costing calculator ============================== */
 function costingFor(r) {
-  if (r.costing && r.costing.ingredients && r.costing.ingredients.length) return r.costing;
+  if (r.costing && r.costing.ingredients && r.costing.ingredients.length) return { ...r.costing, source: r.costing.source || "saved" };
   if (typeof COSTING_DATA !== "undefined" && COSTING_DATA[r.id]) {
-    return { ingredients: COSTING_DATA[r.id], targetCostPct: COSTING_TARGET_PCT, multiplier: COSTING_MULTIPLIER };
+    return { ingredients: COSTING_DATA[r.id], targetCostPct: COSTING_TARGET_PCT, multiplier: COSTING_MULTIPLIER, source: "invoice" };
   }
-  return { ingredients: [], targetCostPct: (typeof COSTING_TARGET_PCT !== "undefined" ? COSTING_TARGET_PCT : 0.28), multiplier: (typeof COSTING_MULTIPLIER !== "undefined" ? COSTING_MULTIPLIER : 1.1136) };
+  if (typeof ESTIMATED_COSTING_DATA !== "undefined" && ESTIMATED_COSTING_DATA[r.id]) {
+    return { ingredients: ESTIMATED_COSTING_DATA[r.id], targetCostPct: COSTING_TARGET_PCT, multiplier: COSTING_MULTIPLIER, source: "estimated" };
+  }
+  return { ingredients: [], targetCostPct: (typeof COSTING_TARGET_PCT !== "undefined" ? COSTING_TARGET_PCT : 0.28), multiplier: (typeof COSTING_MULTIPLIER !== "undefined" ? COSTING_MULTIPLIER : 1.1136), source: "none" };
 }
 
 function openCosting(recipeId) {
@@ -958,6 +994,9 @@ function renderCostingModal() {
     <div class="modal-body">
       <div class="modal-title">Costing — ${escapeHtml(r.nameEn)}</div>
       <div class="hint-text" style="margin-top:2px;">Ingredient cost, quantity and unit — totals and suggested pricing recalculate automatically as you type.</div>
+      ${costing.source === "invoice" ? `<div class="badge badge-verified" style="margin-top:8px;">From supplier invoice data (costing.xlsx)</div>` : ""}
+      ${costing.source === "estimated" ? `<div class="badge badge-draft" style="margin-top:8px;">⚠ Estimated weights — not yet confirmed against real invoices</div>` : ""}
+      ${costing.source === "none" ? `<div class="badge" style="margin-top:8px;">No costing data yet — add ingredients below</div>` : ""}
 
       <table class="costing-table" style="margin-top:14px;">
         <thead><tr>
@@ -1057,7 +1096,7 @@ async function saveCosting(r) {
   const targetCostPct = (parseFloat(document.getElementById("costing-target-pct").value) || 28) / 100;
   const multiplier = parseFloat(document.getElementById("costing-multiplier").value) || 1;
   await db.collection("recipes").doc(r.id).update({
-    costing: { ingredients, targetCostPct, multiplier },
+    costing: { ingredients, targetCostPct, multiplier, source: "saved" },
   });
   document.getElementById("costing-confirm").classList.remove("hidden");
 }
@@ -1093,17 +1132,48 @@ function summaryLine(v) {
 /* ---- Print ---- */
 function printRecipe(r) {
   const area = document.getElementById("print-area");
-  const componentsHtml = (r.components || []).map((c) => `
-    <h2>${escapeHtml(c.title)}${c.draft ? " (draft — needs confirmation)" : ""}</h2>
-    ${(c.ingredients || []).length ? `<ul>${c.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : ""}
-    ${(c.method || []).length ? `<ol>${c.method.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ol>` : ""}
+  const status = recipeStatus(r);
+  const partsHtml = (r.components || []).map((c) => `
+    <div class="print-part">
+      <h2>${escapeHtml(c.title)}${c.draft ? ' <span class="print-draft-tag">DRAFT — needs confirmation</span>' : ""}</h2>
+      <div class="print-part-grid">
+        <div>
+          <div class="print-col-label">Ingredients</div>
+          ${(c.ingredients || []).length ? `<ul>${c.ingredients.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : `<p class="print-muted">No ingredients listed.</p>`}
+        </div>
+        <div>
+          <div class="print-col-label">Method</div>
+          ${(c.method || []).length ? `<ol>${c.method.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ol>` : `<p class="print-muted">No method listed.</p>`}
+        </div>
+      </div>
+    </div>
   `).join("");
+
   area.innerHTML = `
-    <h1>${escapeHtml(r.nameEn)}</h1>
-    <div class="print-meta">Version ${r.version || 1} · Prep: ${r.prepTime || "—"} · Cook: ${r.cookTime || "—"} · Yield: ${r.yield || "—"}</div>
-    ${r.allergens && r.allergens.length ? `<div class="print-meta">Allergens: ${r.allergens.join(", ")}${r.allergensSource === "unverified-menu" ? " (unverified — from guest menu)" : ""}</div>` : ""}
+    <div class="print-header">
+      ${r.image ? `<img class="print-photo" src="${r.image}" alt="">` : ""}
+      <div class="print-header-text">
+        <h1>${escapeHtml(r.nameEn)}</h1>
+        ${r.nameAr ? `<div class="print-ar">${escapeHtml(r.nameAr)}</div>` : ""}
+        <div class="print-meta">
+          <span class="print-tag ${status === "draft" ? "print-tag-draft" : "print-tag-verified"}">${status === "draft" ? "DRAFT — needs chef review" : "VERIFIED"}</span>
+          <span>Version ${r.version || 1}</span>
+        </div>
+        <div class="print-stat-row">
+          <div><b>Prep</b><br>${escapeHtml(r.prepTime) || "—"}</div>
+          <div><b>Cook</b><br>${escapeHtml(r.cookTime) || "—"}</div>
+          <div><b>Yield</b><br>${escapeHtml(r.yield) || "—"}</div>
+          <div><b>Price</b><br>${r.price != null ? "AED " + r.price : "—"}</div>
+        </div>
+      </div>
+    </div>
+
+    ${(r.allergens && r.allergens.length) ? `<p class="print-meta"><b>Allergens:</b> ${r.allergens.map((a) => ALLERGEN_LABELS[a] || a).join(", ")}${r.allergensSource === "unverified-menu" ? " (unverified — from guest menu)" : ""}</p>` : ""}
+    ${r.dishExplanation ? `<p>${escapeHtml(r.dishExplanation)}</p>` : ""}
     ${r.chefNotes ? `<p><b>Chef notes:</b> ${escapeHtml(r.chefNotes)}</p>` : ""}
-    ${componentsHtml}
+
+    ${partsHtml}
+
     ${r.platingNotes ? `<h2>Plating</h2><p>${escapeHtml(r.platingNotes)}</p>` : ""}
   `;
   window.print();
